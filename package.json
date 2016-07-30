@@ -1,7 +1,7 @@
 {
-  "name": "teambition-tagged-events",
+  "name": "teambition-resource-calendar",
   "version": "1.0.0",
-  "description": "Teambition 插件：预订日历",
+  "description": "Teambition 插件：资源日历",
   "author": "Aidi Stan <aidistan@live.com>",
   "private": true,
   "scripts": {

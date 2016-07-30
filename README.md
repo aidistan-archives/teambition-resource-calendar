@@ -1,4 +1,4 @@
-# Teambition 插件：标签日程
+# Teambition 插件：资源日历
 
 ## 参考资料
 
