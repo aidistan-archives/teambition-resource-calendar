@@ -6,6 +6,7 @@
 
 <script>
 import qs from 'querystring'
+import _ from 'lodash'
 
 const name2rgb = {
   red: '#ff5722',
@@ -35,22 +36,39 @@ export default {
       }
     }).then((res) => {
       for (let tag of res.json()) {
-        let name
+        let name = tag.name
 
-        if (/#[0-9a-f]{6}$/.test(tag.name)) {
-          name = tag.name.slice(0, -7)
-          this.resources[name] = {
-            eventColor: tag.name.slice(-7)
-          }
-        } else {
-          name = tag.name
-          this.resources[name] = {
-            eventColor: name2rgb[tag.color]
-          }
+        this.resources[name] = {
+          id: tag._id,
+          title: name,
+          eventColor: name2rgb[tag.color]
         }
 
-        this.resources[name].id = name
-        this.resources[name].title = name
+        if (/#[0-9a-f]{6}$/.test(name)) {
+          this.resources[name].title = name.slice(0, -7)
+          this.resources[name].eventColor = name.slice(-7)
+        }
+      }
+
+      let maxLevel = Math.max.apply(
+        this, _.map(this.resources, (color, name) => name.split('::').length)
+      )
+
+      let resourceLevels = _.map(
+        _.range(maxLevel), (i) => _.assign({}, {
+          group: i !== 0,
+          field: `level_${i}`
+        })
+      ).reverse()
+
+      for (let id in this.resources) {
+        let columns = this.resources[id].title.split('::')
+        this.resources[id]['level_0'] = columns.pop()
+
+        _.map(_.range(1, maxLevel), (i) => {
+          let col = columns[maxLevel - 1 - i]
+          this.resources[id][`level_${i}`] = col === undefined ? '' : col
+        })
       }
 
       this.$http({
@@ -61,32 +79,52 @@ export default {
         }
       }).then((res) => {
         for (let event of res.json()) {
-          if (this.resources[event.location]) {
-            this.events.push({
-              id: event._id,
-              resourceId: event.location,
-              title: event.title,
-              start: event.startDate
-            })
-          }
+          this.events.push({
+            id: event._id,
+            resourceIds: event.tagIds,
+            title: event.title,
+            start: event.startDate,
+            end: event.endDate,
+            url: `https://www.teambition.com/project/${this.params.project}/events/event/${event._id}`
+          })
         }
 
         $('#calendar').fullCalendar({
-          // Appearances
+          // Appearance options
           height: 'auto',
-          lang: 'zh-cn',
           timezone: 'local',
+          header: {
+            left: 'today',
+            center: 'title',
+            right: 'prev,next'
+          },
 
           // View options
-          defaultView: 'agendaDay',
+          resourceLabelText: '',
+          defaultView: 'timelineDay',
           minTime: '08:00:00',
           maxTime: '18:00:00',
+          slotLabelFormat: 'H:mm',
 
-          // Data
+          // Localizations
+          titleFormat: 'YYYY 年 M 月 D 日',
+          buttonText: { today: '今天' },
+
+          // Events
           events: this.events,
+          eventOverlap: false,
+          eventClick: function (event) {
+            if (event.url) {
+              window.open(event.url)
+              return false
+            }
+          },
+
+          // Resources
+          resourceColumns: resourceLevels,
           resources: Object.values(this.resources),
 
-          // GPL License
+          // License
           schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
         })
       })
