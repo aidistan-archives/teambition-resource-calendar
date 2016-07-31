@@ -94,21 +94,35 @@ export default {
           height: 'auto',
           timezone: 'local',
           header: {
-            left: 'today',
+            left: 'prev,next today',
             center: 'title',
-            right: 'prev,next'
+            right: 'timelineDay,agendaWeek,month'
           },
+          buttonText: { today: '今天', month: '月', week: '周', day: '日' },
+          firstDay: '1',
+          dayNamesShort: ['日', '一', '二', '三', '四', '五', '六'],
 
           // View options
-          resourceLabelText: '',
+          views: {
+            timelineDay: {
+              titleFormat: 'YYYY 年 M 月 D 日',
+              slotLabelFormat: ['H:mm']
+            },
+            agendaWeek: {
+              allDaySlot: false,
+              titleFormat: 'YYYY 年 M 月 D 日',
+              columnFormat: 'ddd M/D',
+              timeFormat: 'H:mm',
+              slotLabelFormat: ['H:mm']
+            },
+            month: {
+              titleFormat: 'YYYY 年 M 月',
+              timeFormat: 'H:mm'
+            }
+          },
           defaultView: 'timelineDay',
           minTime: '08:00:00',
           maxTime: '18:00:00',
-          slotLabelFormat: 'H:mm',
-
-          // Localizations
-          titleFormat: 'YYYY 年 M 月 D 日',
-          buttonText: { today: '今天' },
 
           // Events
           events: this.events,
