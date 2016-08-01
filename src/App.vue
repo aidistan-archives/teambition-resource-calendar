@@ -55,9 +55,12 @@ export default {
         }
       }
 
-      if (_.isEmpty(this.resources)) {
-        this.status = '未找到有效的标签'
-        return
+      // 未指定标签的日程
+      this.resources['0'] = {
+        id: '0',
+        title: '其他',
+        eventColor: '#a6a6a6',
+        eventCount: 0
       }
 
       let maxLevel = Math.max.apply(
@@ -89,7 +92,22 @@ export default {
         }
       }).then((res) => {
         for (let event of res.json()) {
-          if (event.tagIds.length === 0) continue
+          if (_.isEmpty(event.tagIds)) {
+            if (event.location) {
+              if (_.isEmpty(this.resources[event.location])) {
+                this.resources[event.location] = {
+                  id: event.location,
+                  title: event.location,
+                  eventColor: '#a6a6a6',
+                  eventCount: 0,
+                  level_0: event.location
+                }
+              }
+              event.tagIds = [event.location]
+            } else {
+              event.tagIds = ['0']
+            }
+          }
 
           this.events.push({
             id: event._id,
