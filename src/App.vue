@@ -1,7 +1,7 @@
 <template lang="pug">
 #app
-  #calendar(v-if="params.project")
-  h2(v-else, style="text-align: center") 未指定项目
+  h2(style="text-align: center") {{ status }}
+  #calendar
 </template>
 
 <script>
@@ -22,11 +22,15 @@ export default {
     return {
       params: qs.parse(window.location.search.substr(1)),
       resources: {},
-      events: []
+      events: [],
+      status: '加载中'
     }
   },
   ready: function () {
-    if (!this.params.project) return
+    if (!this.params.project) {
+      this.status = '未指定项目'
+      return
+    }
 
     this.$http({
       url: `https://api.teambition.com/api/projects/${this.params.project}/tags`,
@@ -38,20 +42,21 @@ export default {
       for (let tag of res.json()) {
         let name = tag.name
 
-        this.resources[name] = {
+        this.resources[tag._id] = {
           id: tag._id,
-          title: name,
-          eventColor: name2rgb[tag.color]
+          title: tag.name,
+          eventColor: name2rgb[tag.color],
+          eventCount: 0
         }
 
         if (/#[0-9a-f]{6}$/.test(name)) {
-          this.resources[name].title = name.slice(0, -7)
-          this.resources[name].eventColor = name.slice(-7)
+          this.resources[tag._id].title = name.slice(0, -7)
+          this.resources[tag._id].eventColor = name.slice(-7)
         }
       }
 
       let maxLevel = Math.max.apply(
-        this, _.map(this.resources, (color, name) => name.split('::').length)
+        this, _.map(this.resources, (resource, id) => resource.title.split('::').length)
       )
 
       let resourceLevels = _.map(
@@ -79,6 +84,8 @@ export default {
         }
       }).then((res) => {
         for (let event of res.json()) {
+          if (event.tagIds.length === 0) continue
+
           this.events.push({
             id: event._id,
             resourceIds: event.tagIds,
@@ -87,6 +94,15 @@ export default {
             end: event.endDate,
             url: `https://www.teambition.com/project/${this.params.project}/events/event/${event._id}`
           })
+
+          for (let tagId of event.tagIds) this.resources[tagId].eventCount += 1
+        }
+
+        if (this.events.length === 0) {
+          this.status = '未找到有效的资源标签'
+          return
+        } else {
+          this.status = ''
         }
 
         $('#calendar').fullCalendar({
@@ -136,7 +152,7 @@ export default {
 
           // Resources
           resourceColumns: resourceLevels,
-          resources: Object.values(this.resources),
+          resources: _.filter(this.resources, (o) => o.eventCount > 0),
 
           // License
           schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
