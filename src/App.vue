@@ -55,6 +55,11 @@ export default {
         }
       }
 
+      if (_.isEmpty(this.resources)) {
+        this.status = '未找到有效的标签'
+        return
+      }
+
       let maxLevel = Math.max.apply(
         this, _.map(this.resources, (resource, id) => resource.title.split('::').length)
       )
@@ -99,7 +104,7 @@ export default {
         }
 
         if (this.events.length === 0) {
-          this.status = '未找到有效的资源标签'
+          this.status = '未找到有效的日程'
           return
         } else {
           this.status = ''
