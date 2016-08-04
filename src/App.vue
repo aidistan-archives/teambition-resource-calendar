@@ -180,7 +180,9 @@ export default {
           schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
         })
 
-        // Done
+        if (this.params.day) {
+          $('#calendar').fullCalendar('gotoDate', $.fullCalendar.moment(this.params.day))
+        }
         this.status = ''
       })
     })
