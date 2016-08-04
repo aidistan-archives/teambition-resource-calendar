@@ -23,12 +23,12 @@ export default {
       params: qs.parse(window.location.search.substr(1)),
       resources: {},
       events: [],
-      status: '加载中'
+      status: '加载中...'
     }
   },
   ready: function () {
     if (!this.params.project) {
-      this.status = '未指定项目'
+      this.status = '未指定项目，请从项目导航栏中打开插件'
       return
     }
 
@@ -53,14 +53,6 @@ export default {
           this.resources[tag._id].title = name.slice(0, -7)
           this.resources[tag._id].eventColor = name.slice(-7)
         }
-      }
-
-      // 未指定标签的日程
-      this.resources['0'] = {
-        id: '0',
-        title: '其他',
-        eventColor: '#a6a6a6',
-        eventCount: 0
       }
 
       let maxLevel = Math.max.apply(
@@ -91,41 +83,48 @@ export default {
           access_token: this.access_token
         }
       }).then((res) => {
-        for (let event of res.json()) {
-          if (_.isEmpty(event.tagIds)) {
-            if (event.location) {
-              if (_.isEmpty(this.resources[event.location])) {
-                this.resources[event.location] = {
-                  id: event.location,
-                  title: event.location,
-                  eventColor: '#a6a6a6',
-                  eventCount: 0,
-                  level_0: event.location
-                }
-              }
-              event.tagIds = [event.location]
-            } else {
-              event.tagIds = ['0']
-            }
-          }
+        if (res.json().length === 0) {
+          this.status = '未找到任何未发生的日程，请在项目中新建'
+          return
+        }
 
-          this.events.push({
+        let ensureResource = (id, resource) => {
+          if (this.resources[id]) return
+
+          this.resources[id] = _.assign({
+            id: id,
+            title: id,
+            eventColor: '#a6a6a6',
+            eventCount: 0,
+            level_0: id
+          }, resource)
+        }
+
+        for (let event of res.json()) {
+          let obj = {
             id: event._id,
-            resourceIds: event.tagIds,
             title: event.title,
             start: event.startDate,
             end: event.endDate,
             url: `https://www.teambition.com/project/${this.params.project}/events/event/${event._id}`
-          })
+          }
 
-          for (let tagId of event.tagIds) this.resources[tagId].eventCount += 1
-        }
+          if (_.isEmpty(event.tagIds)) {
+            if (event.location) {
+              ensureResource(event.location)
+              obj.resourceId = event.location
+              this.resources[event.location].eventCount += 1
+            } else {
+              ensureResource('null', { level_0: '其他资源' })
+              obj.resourceId = 'null'
+              this.resources['null'].eventCount += 1
+            }
+          } else {
+            obj.resourceIds = event.tagIds
+            for (let tagId of event.tagIds) this.resources[tagId].eventCount += 1
+          }
 
-        if (this.events.length === 0) {
-          this.status = '未找到有效的日程'
-          return
-        } else {
-          this.status = ''
+          this.events.push(obj)
         }
 
         $('#calendar').fullCalendar({
@@ -144,6 +143,7 @@ export default {
           // View options
           views: {
             timelineDay: {
+              eventOverlap: false,
               titleFormat: 'YYYY 年 M 月 D 日',
               slotLabelFormat: ['H:mm']
             },
@@ -165,7 +165,6 @@ export default {
 
           // Events
           events: this.events,
-          eventOverlap: false,
           eventClick: function (event) {
             if (event.url) {
               window.open(event.url)
@@ -180,6 +179,9 @@ export default {
           // License
           schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
         })
+
+        // Done
+        this.status = ''
       })
     })
   }
