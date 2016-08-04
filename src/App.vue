@@ -7,6 +7,7 @@
 <script>
 import qs from 'querystring'
 import _ from 'lodash'
+import * as sdk from 'tb-apps-sdk'
 
 const name2rgb = {
   red: '#ff5722',
@@ -167,10 +168,15 @@ export default {
           events: this.events,
           eventOverlap: false,
           eventClick: function (event) {
-            if (event.url) {
-              window.open(event.url)
-              return false
-            }
+            sdk.callService({
+              origin: `${window.location.protocol}//${window.location.host}`,
+              method: 'open',
+              params: {
+                _id: event.id,
+                type: 'event'
+              }
+            })
+            return false
           },
 
           // Resources
