@@ -114,15 +114,18 @@ export default {
             if (event.location) {
               ensureResource(event.location)
               obj.resourceId = event.location
-              this.resources[event.location].eventCount += 1
             } else {
               ensureResource('null', { level_0: '其他资源' })
               obj.resourceId = 'null'
-              this.resources['null'].eventCount += 1
             }
           } else {
             obj.resourceIds = event.tagIds
-            for (let tagId of event.tagIds) this.resources[tagId].eventCount += 1
+          }
+
+          if (obj.resourceId) {
+            this.resources[obj.resourceId].eventCount += 1
+          } else {
+            for (let id of obj.resourceIds) this.resources[id].eventCount += 1
           }
 
           this.events.push(obj)
@@ -175,6 +178,7 @@ export default {
                 type: 'event'
               }
             })
+
             return false
           },
 
