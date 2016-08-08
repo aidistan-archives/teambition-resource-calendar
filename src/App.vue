@@ -56,9 +56,9 @@ export default {
         }
       }
 
-      let maxLevel = Math.max.apply(
-        this, _.map(this.resources, (resource, id) => resource.title.split('::').length)
-      )
+      let maxLevel = _.defaultTo(_.max(
+        _.map(this.resources, (resource) => resource.title.split('::').length)
+      ), 1)
 
       let resourceLevels = _.map(
         _.range(maxLevel), (i) => _.assign({}, {
