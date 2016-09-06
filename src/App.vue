@@ -104,18 +104,6 @@ export default {
             return
           }
 
-          let ensureResource = (id, resource) => {
-            if (this.resources[id]) return
-
-            this.resources[id] = _.assign({
-              id: id,
-              title: id,
-              eventColor: '#a6a6a6',
-              eventCount: 0,
-              level_0: id
-            }, resource)
-          }
-
           for (let event of res.json()) {
             let obj = {
               id: event._id,
@@ -127,10 +115,10 @@ export default {
 
             if (_.isEmpty(event.tagIds)) {
               if (event.location) {
-                ensureResource(event.location)
+                this.ensureResource(event.location)
                 obj.resourceId = event.location
               } else {
-                ensureResource('null', { level_0: '其他资源' })
+                this.ensureResource('null', { level_0: '其他资源' })
                 obj.resourceId = 'null'
               }
             } else {
@@ -148,7 +136,67 @@ export default {
         })
       })
     },
-    loadOrganizationResources: function () {},
+    loadOrganizationResources: function () {
+      this.resourceLevels = [{ group: false, field: 'level_0' }]
+
+      return this.$http({
+        url: `https://api.teambition.com/api/organizations/${this.params.id}/projects`,
+        method: 'GET',
+        params: {
+          all: 1,
+          access_token: this.access_token
+        }
+      }).then((res) => {
+        return Promise.all(_.map(
+          _.filter(res.json(), o => o.visibility !== 'project'), (project) => {
+            return this.$http({
+              url: `https://api.teambition.com/api/projects/${project._id}/events`,
+              method: 'GET',
+              params: {
+                access_token: this.access_token
+              }
+            }).then((res) => {
+              for (let event of res.json()) {
+                let obj = {
+                  id: event._id,
+                  title: event.title,
+                  start: event.startDate,
+                  end: event.endDate,
+                  url: `https://www.teambition.com/project/${project._id}/events/event/${event._id}`
+                }
+
+                if (event.location) {
+                  this.ensureResource(event.location)
+                  obj.resourceId = event.location
+                } else {
+                  this.ensureResource('null', { level_0: '其他资源' })
+                  obj.resourceId = 'null'
+                }
+
+                if (obj.resourceId) {
+                  this.resources[obj.resourceId].eventCount += 1
+                } else {
+                  for (let id of obj.resourceIds) this.resources[id].eventCount += 1
+                }
+
+                this.events.push(obj)
+              }
+            })
+          }
+        ))
+      })
+    },
+    ensureResource: function (id, resource) {
+      if (this.resources[id]) return
+
+      this.resources[id] = _.assign({
+        id: id,
+        title: id,
+        eventColor: '#a6a6a6',
+        eventCount: 0,
+        level_0: id
+      }, resource)
+    },
     renderCalendar: function () {
       $('#calendar').fullCalendar({
         // Appearance options
