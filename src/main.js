@@ -8,3 +8,7 @@ new Vue({
   el: 'body',
   components: { app: require('./App') }
 })
+
+// Import TB styles
+require('tb-styles/dist/styles/ui.min.css')
+require('tb-styles/dist/scripts/ui.min.js')
