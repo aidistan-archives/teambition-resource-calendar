@@ -1,14 +1,29 @@
 import Vue from 'vue'
+import Router from 'vue-router'
 import Resource from 'vue-resource'
 
+Vue.use(Router)
 Vue.use(Resource)
 
-/* eslint-disable no-new */
-new Vue({
-  el: 'body',
-  components: { app: require('./App') }
+let router = new Router()
+
+router.map({
+  '/calendar': {
+    name: 'calendar',
+    component: require('views/Calendar')
+  },
+  '/conflicts': {
+    name: 'conflicts',
+    component: require('views/Conflicts')
+  },
+  '/statistics': {
+    name: 'statistics',
+    component: require('views/Statistics')
+  }
 })
 
-// Import TB styles
-require('tb-styles/dist/styles/ui.min.css')
-require('tb-styles/dist/scripts/ui.min.js')
+router.redirect({
+  '*': '/calendar'
+})
+
+router.start(require('./App'), '#app')
