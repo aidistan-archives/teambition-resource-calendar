@@ -18,21 +18,21 @@ export default {
       },
       buttonText: { today: '今天', month: '月', week: '周', day: '日' },
       firstDay: '1',
-      dayNamesShort: ['日', '一', '二', '三', '四', '五', '六'],
+      dayNamesShort: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
 
       // View options
       views: {
         timelineDay: {
-          eventOverlap: false,
           titleFormat: 'YYYY 年 M 月 D 日',
-          slotLabelFormat: ['H:mm']
+          slotLabelFormat: ['H:mm'],
+          eventOverlap: false
         },
         agendaWeek: {
-          allDaySlot: false,
           titleFormat: 'YYYY 年 M 月 D 日',
           columnFormat: 'ddd M/D',
+          slotLabelFormat: ['H:mm'],
           timeFormat: 'H:mm',
-          slotLabelFormat: ['H:mm']
+          allDaySlot: false
         },
         month: {
           titleFormat: 'YYYY 年 M 月',
