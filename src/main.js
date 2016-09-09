@@ -1,7 +1,11 @@
 import Vue from 'vue'
+import Vuex from 'vuex'
+import Utils from './utils'
 import Router from 'vue-router'
 import Resource from 'vue-resource'
 
+Vue.use(Vuex)
+Vue.use(Utils)
 Vue.use(Router)
 Vue.use(Resource)
 
