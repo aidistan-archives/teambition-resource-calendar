@@ -35,10 +35,6 @@ export default {
     }
   }
 }
-
-// Import TB styles
-require('tb-styles/dist/styles/ui.min.css')
-require('tb-styles/dist/scripts/ui.min.js')
 </script>
 
 <style lang="scss">
