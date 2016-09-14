@@ -47,6 +47,7 @@ export function loadEventsAndResources ({ dispatch }, app) {
         resources[tag._id] = {
           id: tag._id,
           title: tag.name,
+          _title: tag.name,
           eventColor: name2rgb[tag.color],
           eventCount: 0
         }
@@ -179,6 +180,7 @@ export function loadEventsAndResources ({ dispatch }, app) {
     resources[id] = Vue._.assign({
       id: id,
       title: id,
+      _title: id,
       eventColor: '#a6a6a6',
       eventCount: 0,
       level_0: id
