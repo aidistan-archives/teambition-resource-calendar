@@ -9,20 +9,26 @@ const name2rgb = {
   gray: '#a6a6a6'
 }
 
-export function loadEventsAndResources ({ dispatch }, app) {
+if (process.env.NODE_ENV === 'production') {
+  Vue.http.options.credentials = true
+} else {
+  Vue.http.headers.common['Authorization'] = process.env.ACCESS_TOKEN
+}
+
+export function loadEventsAndResources ({ dispatch }, { params }) {
   let events = []
   let resources = {}
   let resourceLevels = []
 
-  if (!Vue._.includes(['project', 'organization'], app.params.type)) {
+  if (!Vue._.includes(['project', 'organization'], params.type)) {
     dispatch('UPDATE_STATUS', '【参数错误】未指定类别')
-  } else if (app.params.type === 'project' && !app.params.id) {
+  } else if (params.type === 'project' && !params.id) {
     dispatch('UPDATE_STATUS', '【参数错误】未指定项目')
-  } else if (app.params.type === 'organization' && !app.params.id) {
+  } else if (params.type === 'organization' && !params.id) {
     dispatch('UPDATE_STATUS', '【参数错误】未指定企业')
   } else {
     (
-      app.params.type === 'project'
+      params.type === 'project'
       ? loadForProject()
       : loadForOrganization()
     ).then((res) => {
@@ -35,11 +41,8 @@ export function loadEventsAndResources ({ dispatch }, app) {
 
   function loadForProject () {
     return Vue.http({
-      url: `https://api.teambition.com/api/projects/${app.params.id}/tags`,
-      method: 'GET',
-      params: {
-        access_token: app.access_token
-      }
+      url: `https://api.teambition.com/api/projects/${params.id}/tags`,
+      method: 'GET'
     }).then((res) => {
       for (let tag of res.json()) {
         let name = tag.name
@@ -80,11 +83,8 @@ export function loadEventsAndResources ({ dispatch }, app) {
       }
 
       return Vue.http({
-        url: `https://api.teambition.com/api/projects/${app.params.id}/events`,
-        method: 'GET',
-        params: {
-          access_token: app.access_token
-        }
+        url: `https://api.teambition.com/api/projects/${params.id}/events`,
+        method: 'GET'
       }).then((res) => {
         if (res.json().length === 0) {
           return Promise.reject('未找到任何未发生的日程，请在项目中新建')
@@ -96,7 +96,7 @@ export function loadEventsAndResources ({ dispatch }, app) {
             title: event.title,
             start: event.startDate,
             end: event.endDate,
-            url: `https://www.teambition.com/project/${app.params.id}/events/event/${event._id}`
+            url: `https://www.teambition.com/project/${params.id}/events/event/${event._id}`
           }
 
           if (Vue._.isEmpty(event.tagIds)) {
@@ -127,21 +127,17 @@ export function loadEventsAndResources ({ dispatch }, app) {
     resourceLevels = [{ group: false, field: 'level_0' }]
 
     return Vue.http({
-      url: `https://api.teambition.com/api/organizations/${app.params.id}/projects`,
+      url: `https://api.teambition.com/api/organizations/${params.id}/projects`,
       method: 'GET',
       params: {
-        all: 1,
-        access_token: app.access_token
+        all: 1
       }
     }).then((res) => {
       return Promise.all(Vue._.map(
         Vue._.filter(res.json(), o => o.visibility !== 'project'), (project) => {
           return Vue.http({
             url: `https://api.teambition.com/api/projects/${project._id}/events`,
-            method: 'GET',
-            params: {
-              access_token: app.access_token
-            }
+            method: 'GET'
           }).then((res) => {
             for (let event of res.json()) {
               let obj = {
