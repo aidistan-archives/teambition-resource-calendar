@@ -41,12 +41,12 @@ export default {
       this.$emit('refresh')
     },
     refresh: function () {
-      let pie = d3.pie()
-        .sort(null)
-        .value(d => d.value + 1)
+      let pie = d3.pie().sort(null).value(d => d.value)
 
-      this.g.svg.selectAll('.arc')
+      this.g.svg.selectAll('path')
         .data(pie(this.group.all()))
+          .attr('d', this.d.arc)
+          .style('fill', d => this.unselected[d.data.key] ? '#e8e8e8' : 'steelblue')
         .enter().append('path')
           .attr('d', this.d.arc)
           .style('fill', d => this.unselected[d.data.key] ? '#e8e8e8' : 'steelblue')
