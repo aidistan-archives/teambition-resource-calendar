@@ -60,7 +60,7 @@ export default {
 
       // Resources
       resourceColumns: this.resourceLevels,
-      resources: this.$_.filter(this.resources, (o) => o.eventCount > 0),
+      resources: this.$_.values(this.resources),
 
       // License
       schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
