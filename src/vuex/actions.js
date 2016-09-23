@@ -12,7 +12,7 @@ const name2rgb = {
 if (process.env.NODE_ENV === 'production') {
   Vue.http.options.credentials = true
 } else {
-  Vue.http.headers.common['Authorization'] = process.env.ACCESS_TOKEN
+  Vue.http.options.params = { access_token: process.env.ACCESS_TOKEN }
 }
 
 export function loadEventsAndResources ({ dispatch }, { params }) {
