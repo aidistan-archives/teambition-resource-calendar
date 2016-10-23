@@ -3,14 +3,12 @@
 </template>
 
 <script>
-import store from '../vuex/store'
-
 export default {
-  ready: function () {
+  mounted: function () {
     let events = []
 
-    for (let e1 of this.events) {
-      for (let e2 of this.events) {
+    for (let e1 of this.$store.state.events) {
+      for (let e2 of this.$store.state.events) {
         if (e1.id === e2.id) continue
 
         let overlaps = this.$_.intersection(
@@ -25,7 +23,7 @@ export default {
         ) continue
 
         let event = this.$_.cloneDeep(e1)
-        event.title = event.title + ' (' + this.$_.map(overlaps, (id) => this.resources[id].title).join(', ') + ')'
+        event.title = event.title + ' (' + this.$_.map(overlaps, (id) => this.$store.state.resources[id].title).join(', ') + ')'
         events.push(event)
         break
       }
@@ -94,14 +92,6 @@ export default {
 
     if (this.$root.params.day) {
       $('#conflicts').fullCalendar('gotoDate', $.fullCalendar.moment(this.$root.params.day))
-    }
-  },
-  store,
-  vuex: {
-    getters: {
-      events: state => state.events,
-      resources: state => state.resources,
-      resourceLevels: state => state.resourceLevels
     }
   }
 }

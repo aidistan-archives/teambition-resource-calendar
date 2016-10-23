@@ -3,10 +3,8 @@
 </template>
 
 <script>
-import store from '../vuex/store'
-
 export default {
-  ready: function () {
+  mounted: function () {
     $('#calendar').fullCalendar({
       // Appearance options
       height: 'auto',
@@ -46,7 +44,7 @@ export default {
       eventOverlap: false,
 
       // Events
-      events: this.events,
+      events: this.$store.state.events,
       eventClick: (event) => {
         this.$tb.callService({
           origin: `${window.location.protocol}//${window.location.host}`,
@@ -62,7 +60,7 @@ export default {
       eventMouseover: (event, jsEvent, view) => {
         $(jsEvent.currentTarget).popover({
           container: 'body',
-          content: `${event.title} (${event.start.format('h:mm')} - ${event.end.format('h:mm')})`,
+          content: `${event.title} (${event.start.format('H:mm')} - ${event.end.format('H:mm')})`,
           delay: { 'show': 500, 'hide': 100 },
           placement: 'bottom',
           trigger: 'manual'
@@ -75,8 +73,8 @@ export default {
       },
 
       // Resources
-      resourceColumns: this.resourceLevels,
-      resources: this.$_.values(this.resources),
+      resourceColumns: this.$store.state.resourceLevels,
+      resources: this.$_.values(this.$store.state.resources),
 
       // License
       schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
@@ -84,14 +82,6 @@ export default {
 
     if (this.$root.params.day) {
       $('#calendar').fullCalendar('gotoDate', $.fullCalendar.moment(this.$root.params.day))
-    }
-  },
-  store,
-  vuex: {
-    getters: {
-      events: state => state.events,
-      resources: state => state.resources,
-      resourceLevels: state => state.resourceLevels
     }
   }
 }

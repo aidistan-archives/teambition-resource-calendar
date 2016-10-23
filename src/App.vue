@@ -1,7 +1,7 @@
 <template lang="pug">
 #app.container-fluid
-  .row(v-if="status")
-    h2(style="text-align: center") {{ status }}
+  .row(v-if="$store.state.status")
+    h2(style="text-align: center") {{ $store.state.status }}
   .row(v-else)
     app-header
     .col-sm-12
@@ -9,30 +9,12 @@
 </template>
 
 <script>
-import qs from 'querystring'
-import store from './vuex/store'
-import { loadEventsAndResources } from './vuex/actions'
-
 export default {
-  data: function () {
-    return {
-      params: qs.parse(window.location.search.substr(1))
-    }
-  },
-  ready: function () {
-    this.loadEventsAndResources(this)
+  created: function () {
+    this.$store.dispatch('loadEventsAndResources', this.$root)
   },
   components: {
     'app-header': require('components/AppHeader')
-  },
-  store,
-  vuex: {
-    getters: {
-      status: state => state.status
-    },
-    actions: {
-      loadEventsAndResources
-    }
   }
 }
 </script>

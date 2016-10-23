@@ -2,8 +2,8 @@
 .app-header
   nav.navbar.navbar-default
     ul.nav.navbar-nav
-      li(v-for="(name, displayName) in menuItems", :class="{ active: $route.name === name }")
-        a(v-link="{ name: name }") {{ displayName }}
+      li(v-for="(displayName, name) in menuItems", :class="{ active: $route.name === name }")
+        router-link(:to="{ name: name }") {{ displayName }}
 </template>
 
 <script>

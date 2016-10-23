@@ -3,8 +3,6 @@
 </template>
 
 <script>
-import * as d3 from 'd3'
-
 export default {
   data: function () {
     return {
@@ -13,35 +11,32 @@ export default {
       unselected: {}
     }
   },
-  props: ['dimension', 'group'],
-  ready: function () {
-    this.$emit('render')
+  props: ['name', 'dimension', 'group'],
+  mounted: function () {
+    let width = $(this.$el).width()
+    let height = Math.min(width, $(window).height() / 2)
+    let radius = Math.min(width, height) / 2
+
+    this.d.arc = this.$d3.arc()
+    .outerRadius(radius - 10)
+    .innerRadius(0)
+
+    this.g.svg = this.$d3.select(this.$el).html('')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height + 30)
+    .append('g')
+    .attr('transform', () => 'translate(' + width / 2 + ',' + height / 2 + ')')
+
+    this.g.title = this.g.svg.append('text')
+    .attr('transform', 'translate(' + 0 + ',' + radius + ')')
+    .attr('dy', '.75em')
+
+    this.refresh()
   },
-  events: {
-    render: function () {
-      let width = $(this.$el).width()
-      let height = Math.min(width, $(window).height() / 2)
-      let radius = Math.min(width, height) / 2
-
-      this.d.arc = d3.arc()
-        .outerRadius(radius - 10)
-        .innerRadius(0)
-
-      this.g.svg = d3.select(this.$el).html('')
-        .append('svg')
-          .attr('width', width)
-          .attr('height', height + 30)
-        .append('g')
-          .attr('transform', () => 'translate(' + width / 2 + ',' + height / 2 + ')')
-
-      this.g.title = this.g.svg.append('text')
-        .attr('transform', 'translate(' + 0 + ',' + radius + ')')
-        .attr('dy', '.75em')
-
-      this.$emit('refresh')
-    },
+  methods: {
     refresh: function () {
-      let pie = d3.pie().sort(null).value(d => d.value)
+      let pie = this.$d3.pie().sort(null).value(d => d.value)
 
       this.g.svg.selectAll('path')
         .data(pie(this.group.all()))
@@ -55,7 +50,7 @@ export default {
           .on('click', d => {
             this.unselected[d.data.key] = !this.unselected[d.data.key]
             this.dimension.filterFunction(d => !this.unselected[d])
-            this.$dispatch('refresh')
+            this.$emit('refresh')
           })
     }
   }

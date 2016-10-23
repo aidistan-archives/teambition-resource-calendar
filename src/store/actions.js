@@ -9,33 +9,33 @@ const name2rgb = {
   gray: '#a6a6a6'
 }
 
-if (process.env.NODE_ENV === 'production') {
-  Vue.http.options.credentials = true
-} else {
-  Vue.http.options.params = { access_token: process.env.ACCESS_TOKEN }
-}
+export const loadEventsAndResources = ({ commit }, { params }) => {
+  if (process.env.NODE_ENV === 'production') {
+    Vue.http.options.credentials = true
+  } else {
+    Vue.http.options.params = { access_token: process.env.ACCESS_TOKEN }
+  }
 
-export function loadEventsAndResources ({ dispatch }, { params }) {
   let events = []
   let resources = {}
   let resourceLevels = []
 
   if (!Vue._.includes(['project', 'organization'], params.type)) {
-    dispatch('UPDATE_STATUS', '【参数错误】未指定类别')
+    commit('UPDATE_STATUS', '【参数错误】未指定类别')
   } else if (params.type === 'project' && !params.id) {
-    dispatch('UPDATE_STATUS', '【参数错误】未指定项目')
+    commit('UPDATE_STATUS', '【参数错误】未指定项目')
   } else if (params.type === 'organization' && !params.id) {
-    dispatch('UPDATE_STATUS', '【参数错误】未指定企业')
+    commit('UPDATE_STATUS', '【参数错误】未指定企业')
   } else {
     (
       params.type === 'project'
       ? loadForProject()
       : loadForOrganization()
     ).then((res) => {
-      dispatch('UPDATE_DATA', prepareData())
-      dispatch('UPDATE_STATUS', '')
+      commit('UPDATE_DATA', prepareData())
+      commit('UPDATE_STATUS', '')
     }).catch((err) => {
-      dispatch('UPDATE_STATUS', err)
+      commit('UPDATE_STATUS', err.message)
     })
   }
 
@@ -44,7 +44,9 @@ export function loadEventsAndResources ({ dispatch }, { params }) {
       url: `https://api.teambition.com/api/projects/${params.id}/tags`,
       method: 'GET'
     }).then((res) => {
-      for (let tag of res.json()) {
+      return res.json()
+    }).then((tags) => {
+      for (let tag of tags) {
         let name = tag.name
 
         resources[tag._id] = {
@@ -86,38 +88,40 @@ export function loadEventsAndResources ({ dispatch }, { params }) {
         url: `https://api.teambition.com/api/projects/${params.id}/events`,
         method: 'GET'
       }).then((res) => {
-        if (res.json().length === 0) {
+        return res.json()
+      }).then((tbEvents) => {
+        if (tbEvents.length === 0) {
           return Promise.reject('未找到任何未发生的日程，请在项目中新建')
         }
 
-        for (let event of res.json()) {
-          let obj = {
-            id: event._id,
-            title: event.title,
-            start: event.startDate,
-            end: event.endDate,
-            url: `https://www.teambition.com/project/${params.id}/events/event/${event._id}`
+        for (let tbEvent of tbEvents) {
+          let event = {
+            id: tbEvent._id,
+            title: tbEvent.title,
+            start: tbEvent.startDate,
+            end: tbEvent.endDate,
+            url: `https://www.teambition.com/project/${params.id}/events/event/${tbEvent._id}`
           }
 
-          if (Vue._.isEmpty(event.tagIds)) {
-            if (event.location) {
-              ensureResource(event.location)
-              obj.resourceId = event.location
+          if (Vue._.isEmpty(tbEvent.tagIds)) {
+            if (tbEvent.location) {
+              ensureResource(tbEvent.location)
+              event.resourceId = tbEvent.location
             } else {
               ensureResource('null', { level_0: '其他资源' })
-              obj.resourceId = 'null'
+              event.resourceId = 'null'
             }
           } else {
-            obj.resourceIds = event.tagIds
+            event.resourceIds = tbEvent.tagIds
           }
 
-          if (obj.resourceId) {
-            resources[obj.resourceId].eventCount += 1
+          if (event.resourceId) {
+            resources[event.resourceId].eventCount += 1
           } else {
-            for (let id of obj.resourceIds) resources[id].eventCount += 1
+            for (let id of event.resourceIds) resources[id].eventCount += 1
           }
 
-          events.push(obj)
+          events.push(event)
         }
       })
     })
@@ -128,41 +132,45 @@ export function loadEventsAndResources ({ dispatch }, { params }) {
 
     return Vue.http({
       url: `https://api.teambition.com/api/organizations/${params.id}/projects`,
-      method: 'GET',
-      params: {
-        all: 1
-      }
+      method: 'GET' // ,
+      // params: {
+      //   all: 1
+      // }
     }).then((res) => {
+      return res.json()
+    }).then((projects) => {
       return Promise.all(Vue._.map(
-        Vue._.filter(res.json(), o => o.visibility !== 'project'), (project) => {
+        Vue._.filter(projects, p => p.visibility !== 'project'), (project) => {
           return Vue.http({
             url: `https://api.teambition.com/api/projects/${project._id}/events`,
             method: 'GET'
           }).then((res) => {
-            for (let event of res.json()) {
-              let obj = {
-                id: event._id,
-                title: event.title,
-                start: event.startDate,
-                end: event.endDate,
-                url: `https://www.teambition.com/project/${project._id}/events/event/${event._id}`
+            return res.json()
+          }).then((tbEvents) => {
+            for (let tbEvent of tbEvents) {
+              let event = {
+                id: tbEvent._id,
+                title: tbEvent.title,
+                start: tbEvent.startDate,
+                end: tbEvent.endDate,
+                url: `https://www.teambition.com/project/${project._id}/events/event/${tbEvent._id}`
               }
 
-              if (event.location) {
-                ensureResource(event.location)
-                obj.resourceId = event.location
+              if (tbEvent.location) {
+                ensureResource(tbEvent.location)
+                event.resourceId = tbEvent.location
               } else {
                 ensureResource('null', { level_0: '其他资源' })
-                obj.resourceId = 'null'
+                event.resourceId = 'null'
               }
 
-              if (obj.resourceId) {
-                resources[obj.resourceId].eventCount += 1
+              if (event.resourceId) {
+                resources[event.resourceId].eventCount += 1
               } else {
-                for (let id of obj.resourceIds) resources[id].eventCount += 1
+                for (let id of event.resourceIds) resources[id].eventCount += 1
               }
 
-              events.push(obj)
+              events.push(event)
             }
           })
         }

@@ -9,35 +9,52 @@ require('fullcalendar-scheduler/dist/scheduler.css')
 require('fullcalendar-scheduler/dist/scheduler.js')
 
 import Vue from 'vue'
-import Vuex from 'vuex'
-import Utils from './utils'
 import Router from 'vue-router'
 import Resource from 'vue-resource'
+import qs from 'querystring'
+import store from './store'
+import utils from './utils'
 
-Vue.use(Vuex)
-Vue.use(Utils)
+Vue.use(utils)
 Vue.use(Router)
 Vue.use(Resource)
 
-let router = new Router()
+let router = new Router({
+  routes: [
+    {
+      path: '/calendar',
+      name: 'calendar',
+      component: require('views/Calendar')
+    },
+    {
+      path: '/conflicts',
+      name: 'conflicts',
+      component: require('views/Conflicts')
+    },
+    {
+      path: '/statistics',
+      name: 'statistics',
+      component: require('views/Statistics')
+    },
+    {
+      path: '*',
+      redirect: '/calendar'
+    }
+  ]
+})
 
-router.map({
-  '/calendar': {
-    name: 'calendar',
-    component: require('views/Calendar')
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  template: '<App/>',
+  data: function () {
+    return {
+      params: qs.parse(window.location.search.substr(1))
+    }
   },
-  '/conflicts': {
-    name: 'conflicts',
-    component: require('views/Conflicts')
-  },
-  '/statistics': {
-    name: 'statistics',
-    component: require('views/Statistics')
+  router: router,
+  store,
+  components: {
+    App: require('./App')
   }
 })
-
-router.redirect({
-  '*': '/calendar'
-})
-
-router.start(require('./App'), '#app')
