@@ -38,9 +38,9 @@ export default {
       header: {
         left: 'prev,next today',
         center: 'title',
-        right: 'listDay,listWeek,listMonth'
+        right: 'listDay, listWeek, listMonth, listYear'
       },
-      buttonText: { today: '今天', month: '月', week: '周', day: '日' },
+      buttonText: { today: '今天', year: '年', month: '月', week: '周', day: '日' },
       firstDay: '1',
       dayNamesShort: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
 
@@ -59,6 +59,12 @@ export default {
         },
         listMonth: {
           titleFormat: 'YYYY 年 M 月',
+          timeFormat: 'H:mm',
+          listDayFormat: 'YYYY 年 M 月 D 日',
+          listDayAltFormat: 'ddd'
+        },
+        listYear: {
+          titleFormat: 'YYYY 年',
           timeFormat: 'H:mm',
           listDayFormat: 'YYYY 年 M 月 D 日',
           listDayAltFormat: 'ddd'

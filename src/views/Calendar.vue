@@ -14,34 +14,36 @@ export default {
       header: {
         left: 'prev,next today',
         center: 'title',
-        right: 'timelineDay,agendaWeek,month'
+        right: 'timelineDay, timelineWeek, timelineMonth, timelineYear'
       },
-      buttonText: { today: '今天', month: '月', week: '周', day: '日' },
+      buttonText: { today: '今天', year: '年', month: '月', week: '周', day: '日' },
       firstDay: '1',
-      dayNamesShort: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+      dayNamesShort: ['日', '一', '二', '三', '四', '五', '六'],
 
       // View options
       views: {
         timelineDay: {
           titleFormat: 'YYYY 年 M 月 D 日',
-          slotLabelFormat: ['H:mm'],
-          eventOverlap: false
+          slotLabelFormat: ['H:mm']
         },
-        agendaWeek: {
+        timelineWeek: {
           titleFormat: 'YYYY 年 M 月 D 日',
-          columnFormat: 'ddd M/D',
-          slotLabelFormat: ['H:mm'],
-          timeFormat: 'H:mm',
-          allDaySlot: false
+          slotLabelFormat: ['M/D ddd', 'H:mm']
         },
-        month: {
+        timelineMonth: {
           titleFormat: 'YYYY 年 M 月',
-          timeFormat: 'H:mm'
+          slotLabelFormat: 'D ddd'
+        },
+        timelineYear: {
+          titleFormat: 'YYYY 年',
+          slotLabelFormat: ['M 月', 'D ddd']
         }
       },
       defaultView: 'timelineDay',
       minTime: '08:00:00',
       maxTime: '18:00:00',
+      timeFormat: 'H:mm',
+      eventOverlap: false,
 
       // Events
       events: this.events,
@@ -56,6 +58,20 @@ export default {
         })
 
         return false
+      },
+      eventMouseover: (event, jsEvent, view) => {
+        $(jsEvent.currentTarget).popover({
+          container: 'body',
+          content: `${event.title} (${event.start.format('h:mm')} - ${event.end.format('h:mm')})`,
+          delay: { 'show': 500, 'hide': 100 },
+          placement: 'bottom',
+          trigger: 'manual'
+        })
+
+        $(jsEvent.currentTarget).popover('show')
+      },
+      eventMouseout: (event, jsEvent, view) => {
+        $(jsEvent.currentTarget).popover('hide')
       },
 
       // Resources
