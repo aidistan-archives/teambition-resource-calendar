@@ -132,10 +132,8 @@ export const loadEventsAndResources = ({ commit }, { params }) => {
 
     return Vue.http({
       url: `https://api.teambition.com/api/organizations/${params.id}/projects`,
-      method: 'GET' // ,
-      // params: {
-      //   all: 1
-      // }
+      method: 'GET',
+      params: Vue._.merge(Vue.http.options.params, {all: 1})
     }).then((res) => {
       return res.json()
     }).then((projects) => {
