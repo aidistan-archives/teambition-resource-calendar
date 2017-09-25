@@ -1,60 +1,21 @@
-// Import jQuery
-window.$ = window.jQuery = require('jquery')
-// Import TB styles
-require('tb-styles/dist/styles/ui.min.css')
-require('tb-styles/dist/scripts/ui.min.js')
-// Import fullcalendar-scheduler
-require('fullcalendar-scheduler/node_modules/fullcalendar/dist/fullcalendar.css')
-require('fullcalendar-scheduler/dist/scheduler.css')
-require('fullcalendar-scheduler/dist/scheduler.js')
-
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import Router from 'vue-router'
+import App from './App'
+import Utils from './utils'
 import Resource from 'vue-resource'
-import qs from 'querystring'
 import store from './store'
-import utils from './utils'
+import router from './router'
 
-Vue.use(utils)
-Vue.use(Router)
+Vue.use(Utils)
 Vue.use(Resource)
-
-let router = new Router({
-  routes: [
-    {
-      path: '/calendar',
-      name: 'calendar',
-      component: require('views/Calendar')
-    },
-    {
-      path: '/conflicts',
-      name: 'conflicts',
-      component: require('views/Conflicts')
-    },
-    {
-      path: '/statistics',
-      name: 'statistics',
-      component: require('views/Statistics')
-    },
-    {
-      path: '*',
-      redirect: '/calendar'
-    }
-  ]
-})
+Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  template: '<App/>',
-  data: function () {
-    return {
-      params: qs.parse(window.location.search.substr(1))
-    }
-  },
-  router: router,
   store,
-  components: {
-    App: require('./App')
-  }
+  router,
+  template: '<App/>',
+  components: { App }
 })

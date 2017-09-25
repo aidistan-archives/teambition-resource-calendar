@@ -15,19 +15,22 @@
 </template>
 
 <script>
+import BarChart from '@/components/BarChart'
+import PieChart from '@/components/PieChart'
+
 export default {
-  data: function () {
+  data () {
     return {
       resource: {},
       date: {},
       hour: {}
     }
   },
-  created: function () {
+  created () {
     let moments = []
 
     for (let event of this.$store.state.events) {
-      for (let m = this.$moment(event.start); m < this.$moment(event.end); m = this.$moment(m + 300000)) {
+      for (let m = this.$m(event.start); m < this.$m(event.end); m = this.$m(m + 300000)) {
         for (let id of (event.resourceId ? [event.resourceId] : event.resourceIds)) {
           moments.push({
             date: m._d,
@@ -43,24 +46,21 @@ export default {
     this.resource.group = this.resource.dimension.group()
     this.date.dimension = moments.dimension(d => d.date)
     this.date.group = this.date.dimension.group(this.$d3.timeDay)
-    this.date.domain = [this.$moment().add(-30, 'days')._d, this.$moment().add(30, 'days')._d]
+    this.date.domain = [this.$m().add(-30, 'days')._d, this.$m().add(30, 'days')._d]
     this.hour.dimension = moments.dimension(d => d.date.getHours() + d.date.getMinutes() / 60)
     this.hour.group = this.hour.dimension.group(Math.floor)
     this.hour.domain = [0, 24]
   },
   methods: {
-    refresh: function () {
+    refresh () {
       this.$refs.resource.refresh()
       this.$refs.date.refresh()
       this.$refs.hour.refresh()
     }
   },
   components: {
-    'bar-chart': require('components/BarChart'),
-    'pie-chart': require('components/PieChart')
+    BarChart,
+    PieChart
   }
 }
 </script>
-
-<style lang="scss">
-</style>

@@ -4,14 +4,14 @@
 
 <script>
 export default {
-  data: function () {
+  data () {
     return {
       d: {},
       selection: null
     }
   },
   props: ['name', 'dimension', 'group', 'domain'],
-  mounted: function () {
+  mounted () {
     let self = this
 
     let margin = { left: 20, right: 20, top: 20, bottom: 20 }
@@ -91,13 +91,8 @@ export default {
 
     this.refresh()
   },
-  watch: {
-    'dimension': function () {
-      console.log('watch')
-    }
-  },
   methods: {
-    refresh: function () {
+    refresh () {
       this.$d3.select(this.$el).selectAll('.bar')
         .datum(this.group.all())
         .attr('d', this.d.barPath)

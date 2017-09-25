@@ -1,20 +1,27 @@
 <template lang="pug">
 #app.container-fluid
-  .row(v-if="$store.state.status")
-    h2(style="text-align: center") {{ $store.state.status }}
-  .row(v-else)
-    app-header
-    .col-sm-12
-      router-view
+  app-header
+  router-view
+  #app-status(v-show="$store.state.status")
+    .jumbotron
+      h2 {{ $store.state.status }}
+      p 请检查插件配置，或联系开发者获取帮助
+  #app-spinner(v-show="$store.state.spinner")
+    img(src="./assets/loading.gif")
 </template>
 
 <script>
+import AppHeader from '@/components/AppHeader'
+
 export default {
-  created: function () {
-    this.$store.dispatch('loadEventsAndResources', this.$root)
+  name: 'app',
+  created () {
+    this.$store.dispatch('spinner', true)
+    .then(() => this.$store.dispatch('loadEventsAndResources'))
+    .then(() => this.$store.dispatch('spinner', false))
   },
   components: {
-    'app-header': require('components/AppHeader')
+    AppHeader, Calendar: require('@/pages/Calendar.vue')
   }
 }
 </script>
@@ -23,4 +30,23 @@ export default {
 #app {
   user-select: none;
 }
+
+#app-status,
+#app-spinner {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+
+  top: 0;
+  left: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #333;
+  background-color: #fff;
+}
+#app-status { z-index: 5; }
+#app-spinner { z-index: 10; }
 </style>

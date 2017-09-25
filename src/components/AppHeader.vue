@@ -1,14 +1,14 @@
 <template lang="pug">
-.app-header
+.app-header.row
   nav.navbar.navbar-default
     ul.nav.navbar-nav
       li(v-for="(displayName, name) in menuItems", :class="{ active: $route.name === name }")
-        router-link(:to="{ name: name }") {{ displayName }}
+        router-link(:to="{ name: name, query: $route.query }") {{ displayName }}
 </template>
 
 <script>
 export default {
-  data: function () {
+  data () {
     return {
       menuItems: {
         calendar: '资源日历',
@@ -22,7 +22,12 @@ export default {
 
 <style lang="scss">
 .app-header {
+  .navbar {
+    min-height: 40px;
+  }
+
   ul.navbar-nav {
+    margin: 0;
     float: none;
     text-align: center;
 

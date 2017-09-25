@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  data: function () {
+  data () {
     return {
       d: {},
       g: {},
@@ -12,7 +12,7 @@ export default {
     }
   },
   props: ['name', 'dimension', 'group'],
-  mounted: function () {
+  mounted () {
     let width = $(this.$el).width()
     let height = Math.min(width, $(window).height() / 2)
     let radius = Math.min(width, height) / 2
@@ -35,7 +35,7 @@ export default {
     this.refresh()
   },
   methods: {
-    refresh: function () {
+    refresh () {
       let pie = this.$d3.pie().sort(null).value(d => d.value)
 
       this.g.svg.selectAll('path')
