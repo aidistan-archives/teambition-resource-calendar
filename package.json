@@ -10,8 +10,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
-    "crossfilter": "^1.3.12",
-    "d3": "^4.10.2",
+    "chart.js": "^2.7.0",
     "fullcalendar-scheduler": "^1.7.1",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",

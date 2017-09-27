@@ -1,5 +1,4 @@
 import _ from 'lodash'
-import * as d3 from 'd3'
 import * as tb from 'tb-apps-sdk'
 
 export default {
@@ -19,7 +18,6 @@ export default {
 
     Vue._ = _
     Vue.m = $.fullCalendar.moment
-    Vue.d3 = d3
     Vue.tb = tb
     Vue.api = (options) => {
       options.url = '/api' + options.url
@@ -37,7 +35,6 @@ export default {
     Object.defineProperties(Vue.prototype, {
       '$_': { value: Vue._ },
       '$m': { value: Vue.m },
-      '$d3': { value: Vue.d3 },
       '$tb': { value: Vue.tb },
       '$api': { value: Vue.api }
     })

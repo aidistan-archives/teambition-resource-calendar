@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 const name2rgb = {
   red: '#ff5722',
-  yellow: '#ffc107',
+  yellow: '#ffc137',
   green: '#bbc34a',
   blue: '#03a9f4',
   purple: '#ab47bc',
@@ -40,20 +40,19 @@ export function loadEventsAndResources ({ commit, state }) {
       for (let tag of tags) {
         let name = tag.name
 
-        resources[tag._id] = {
-          id: tag._id,
-          title: tag.name,
-          _title: tag.name,
-          eventColor: name2rgb[tag.color],
-          eventCount: 0
-        }
+        ensureResource(tag._id, {
+          title: name,
+          _title: name,
+          eventColor: name2rgb[tag.color]
+        })
 
         if (/#[0-9a-f]{6}$/.test(name)) {
           resources[tag._id].title = name.slice(0, -7)
           resources[tag._id].eventColor = name.slice(-7)
         }
       }
-
+    })
+    .then(() => {
       let maxLevel = Vue._.defaultTo(Vue._.max(
         Vue._.map(resources, (resource) => resource.title.split('::').length)
       ), 1)
@@ -74,47 +73,41 @@ export function loadEventsAndResources ({ commit, state }) {
           resources[id][`level_${i}`] = col === undefined ? '' : col
         })
       }
+    })
+    .then(() => Vue.api({
+      url: `/projects/${state.params.id}/events?startDate=${Vue.m().subtract(1, 'year').toISOString()}`,
+      method: 'GET'
+    }))
+    .then((res) => res.json())
+    .then((tbEvents) => {
+      if (tbEvents.length === 0) {
+        return Promise.reject(new Error('未找到任何日程，请在项目中新建'))
+      }
 
-      return Vue.api({
-        url: `/projects/${state.params.id}/events?startDate=${Vue.m().subtract(1, 'year').toISOString()}`,
-        method: 'GET'
-      })
-      .then((res) => res.json())
-      .then((tbEvents) => {
-        if (tbEvents.length === 0) {
-          return Promise.reject(new Error('未找到任何日程，请在项目中新建'))
+      for (let tbEvent of tbEvents) {
+        let event = {
+          id: tbEvent._id,
+          title: tbEvent.title,
+          start: tbEvent.startDate,
+          end: tbEvent.endDate,
+          url: `https://www.teambition.com/project/${state.params.id}/events/event/${tbEvent._id}`
         }
 
-        for (let tbEvent of tbEvents) {
-          let event = {
-            id: tbEvent._id,
-            title: tbEvent.title,
-            start: tbEvent.startDate,
-            end: tbEvent.endDate,
-            url: `https://www.teambition.com/project/${state.params.id}/events/event/${tbEvent._id}`
-          }
-
-          if (Vue._.isEmpty(tbEvent.tagIds)) {
-            if (tbEvent.location) {
-              ensureResource(tbEvent.location)
-              event.resourceId = tbEvent.location
-            } else {
-              ensureResource('null', { level_0: '其他资源' })
-              event.resourceId = 'null'
-            }
+        if (Vue._.isEmpty(tbEvent.tagIds)) {
+          if (tbEvent.location) {
+            ensureResource(tbEvent.location)
+            event.resourceIds = [tbEvent.location]
           } else {
-            event.resourceIds = tbEvent.tagIds
+            ensureResource('null', { title: '其他资源', level_0: '其他资源' })
+            event.resourceIds = ['null']
           }
-
-          if (event.resourceId) {
-            resources[event.resourceId].eventCount += 1
-          } else {
-            for (let id of event.resourceIds) resources[id].eventCount += 1
-          }
-
-          events.push(event)
+        } else {
+          event.resourceIds = tbEvent.tagIds
         }
-      })
+        for (let id of event.resourceIds) resources[id].eventCount += 1
+
+        events.push(event)
+      }
     })
   }
 
@@ -145,17 +138,12 @@ export function loadEventsAndResources ({ commit, state }) {
 
             if (tbEvent.location) {
               ensureResource(tbEvent.location)
-              event.resourceId = tbEvent.location
+              event.resourceIds = [tbEvent.location]
             } else {
-              ensureResource('null', { level_0: '其他资源' })
-              event.resourceId = 'null'
+              ensureResource('null', { title: '其他资源', level_0: '其他资源' })
+              event.resourceIds = ['null']
             }
-
-            if (event.resourceId) {
-              resources[event.resourceId].eventCount += 1
-            } else {
-              for (let id of event.resourceIds) resources[id].eventCount += 1
-            }
+            for (let id of event.resourceIds) resources[id].eventCount += 1
 
             events.push(event)
           }
@@ -171,7 +159,8 @@ export function loadEventsAndResources ({ commit, state }) {
       id: id,
       title: id,
       _title: id,
-      eventColor: '#a6a6a6',
+      eventColor: name2rgb.gray,
+      eventTextColor: '#333',
       eventCount: 0,
       level_0: id
     }, resource)
