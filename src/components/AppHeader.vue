@@ -12,6 +12,7 @@ export default {
     return {
       menuItems: {
         resources: '资源日历',
+        members: '人员日历',
         conflicts: '冲突检测',
         statistics: '利用统计'
       }

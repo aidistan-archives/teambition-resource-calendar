@@ -24,6 +24,7 @@ export default new Vuex.Store({
     },
     DATA (state, data) {
       state.events = data.events
+      state.members = data.members
       state.resources = data.resources
       state.resourceLevels = data.resourceLevels
     }

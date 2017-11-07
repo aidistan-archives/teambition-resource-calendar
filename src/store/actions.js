@@ -15,6 +15,7 @@ export function spinner ({ commit }, ifShow) {
 
 export function loadEventsAndResources ({ commit, state }) {
   let events = []
+  let members = {}
   let resources = {}
   let resourceLevels = []
 
@@ -32,9 +33,19 @@ export function loadEventsAndResources ({ commit, state }) {
 
   function loadForProject () {
     return Vue.api({
-      url: `/projects/${state.params.id}/tags`,
+      url: `/v2/projects/${state.params.id}/members`,
       method: 'GET'
     })
+    .then((res) => res.json())
+    .then((tbMembers) => {
+      members = Vue._(tbMembers).keyBy('_id').mapValues((tbMember) => (
+        { id: tbMember._id, title: tbMember.name, eventCount: 0 }
+      )).value()
+    })
+    .then(() => Vue.api({
+      url: `/projects/${state.params.id}/tags`,
+      method: 'GET'
+    }))
     .then((res) => res.json())
     .then((tags) => {
       for (let tag of tags) {
@@ -53,22 +64,21 @@ export function loadEventsAndResources ({ commit, state }) {
       }
     })
     .then(() => {
-      let maxLevel = Vue._.defaultTo(Vue._.max(
-        Vue._.map(resources, (resource) => resource.title.split('::').length)
-      ), 1)
+      let maxLevel = Vue._(resources)
+      .map((resource) => resource.title.split('::').length)
+      .max() || 1
 
-      resourceLevels = Vue._.map(
-        Vue._.range(maxLevel), (i) => Vue._.assign({}, {
-          group: i !== 0,
-          field: `level_${i}`
-        })
-      ).reverse()
+      resourceLevels = Vue._(Vue._.range(maxLevel)).map((i) => ({
+        group: i !== 0,
+        field: `level_${i}`
+      }))
+      .value().reverse()
 
       for (let id in resources) {
         let columns = resources[id].title.split('::')
         resources[id]['level_0'] = columns.pop()
 
-        Vue._.map(Vue._.range(1, maxLevel), (i) => {
+        Vue._(Vue._.range(1, maxLevel)).each((i) => {
           let col = columns[maxLevel - 1 - i]
           resources[id][`level_${i}`] = col === undefined ? '' : col
         })
@@ -90,6 +100,7 @@ export function loadEventsAndResources ({ commit, state }) {
           title: tbEvent.title,
           start: tbEvent.startDate,
           end: tbEvent.endDate,
+          memberIds: tbEvent.involveMembers,
           url: `https://www.teambition.com/project/${state.params.id}/events/event/${tbEvent._id}`
         }
 
@@ -104,6 +115,8 @@ export function loadEventsAndResources ({ commit, state }) {
         } else {
           event.resourceIds = tbEvent.tagIds
         }
+
+        for (let id of event.memberIds) if (members[id]) members[id].eventCount += 1
         for (let id of event.resourceIds) resources[id].eventCount += 1
 
         events.push(event)
@@ -115,9 +128,19 @@ export function loadEventsAndResources ({ commit, state }) {
     resourceLevels = [{ group: false, field: 'level_0' }]
 
     return Vue.api({
-      url: `/organizations/${state.params.id}/projects/public`,
+      url: `/v2/organizations/${state.params.id}/members`,
       method: 'GET'
     })
+    .then((res) => res.json())
+    .then((tbMembers) => {
+      members = Vue._(tbMembers).keyBy('_id').mapValues((tbMember) => (
+        { id: tbMember._id, title: tbMember.name, eventCount: 0 }
+      )).value()
+    })
+    .then(() => Vue.api({
+      url: `/organizations/${state.params.id}/projects/public`,
+      method: 'GET'
+    }))
     .then((res) => res.json())
     .then((projects) => {
       return Promise.all(Vue._.map(projects, (project) => {
@@ -133,6 +156,7 @@ export function loadEventsAndResources ({ commit, state }) {
               title: tbEvent.title,
               start: tbEvent.startDate,
               end: tbEvent.endDate,
+              memberIds: tbEvent.involveMembers,
               url: `https://www.teambition.com/project/${project._id}/events/event/${tbEvent._id}`
             }
 
@@ -143,6 +167,8 @@ export function loadEventsAndResources ({ commit, state }) {
               ensureResource('null', { title: '其他资源', level_0: '其他资源' })
               event.resourceIds = ['null']
             }
+
+            for (let id of event.memberIds) if (members[id]) members[id].eventCount += 1
             for (let id of event.resourceIds) resources[id].eventCount += 1
 
             events.push(event)
@@ -169,6 +195,7 @@ export function loadEventsAndResources ({ commit, state }) {
   function prepareData () {
     let data = {
       events,
+      members: Vue._.pickBy(members, (m) => m.eventCount > 0),
       resources: Vue._.pickBy(resources, (r) => r.eventCount > 0),
       resourceLevels
     }
