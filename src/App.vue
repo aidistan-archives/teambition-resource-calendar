@@ -21,7 +21,7 @@ export default {
     .then(() => this.$store.dispatch('spinner', false))
   },
   components: {
-    AppHeader, Calendar: require('@/pages/Calendar.vue')
+    AppHeader
   }
 }
 </script>

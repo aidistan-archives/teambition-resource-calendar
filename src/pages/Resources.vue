@@ -1,18 +1,18 @@
 <template lang="pug">
-#calendar
+#resources
 </template>
 
 <script>
 export default {
-  name: 'calendar',
+  name: 'resources',
   mounted () {
     this.refresh()
     this.$store.watch((state) => state.events, this.refresh)
   },
   methods: {
     refresh () {
-      $('#calendar').fullCalendar('destroy')
-      $('#calendar').fullCalendar({
+      $('#resources').fullCalendar('destroy')
+      $('#resources').fullCalendar({
         // Theme options
         themeSystem: 'bootstrap3',
 
@@ -91,7 +91,7 @@ export default {
       })
 
       if (this.$store.state.params.day) {
-        $('#calendar').fullCalendar('gotoDate', $.fullCalendar.moment(this.$store.state.params.day))
+        $('#resources').fullresources('gotoDate', $.fullCalendar.moment(this.$store.state.params.day))
       }
     }
   }
