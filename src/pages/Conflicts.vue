@@ -5,6 +5,12 @@
 <script>
 export default {
   name: 'conflicts',
+  data () {
+    return {
+      checkMembers: true,
+      checkResources: true
+    }
+  },
   mounted () {
     this.refresh()
     this.$store.watch((state) => state.events, this.refresh)
@@ -13,13 +19,23 @@ export default {
     refresh () {
       let events = []
 
-      for (let e1 of this.$store.state.events) {
-        for (let e2 of this.$store.state.events) {
-          if (e1.id === e2.id) continue
+      for (let i1 = 0; i1 < this.$store.state.events.length; i1 += 1) {
+        let e1 = this.$store.state.events[i1]
+        for (let i2 = i1 + 1; i2 < this.$store.state.events.length; i2 += 1) {
+          let e2 = this.$store.state.events[i2]
 
-          let overlaps = this.$_.intersection(
-            e1.resourceId ? [e1.resourceId] : e1.resourceIds,
-            e2.resourceId ? [e2.resourceId] : e2.resourceIds
+          let overlaps = this.$_.union(
+            this.checkResources
+            ? this.$_.intersection(
+              e1.resourceId ? [e1.resourceId] : e1.resourceIds,
+              e2.resourceId ? [e2.resourceId] : e2.resourceIds
+            )
+            .map((id) => this.$store.state.resources[id].title)
+            : [],
+            this.checkMembers
+            ? this.$_.intersection(e1.memberIds, e2.memberIds)
+              .map((id) => this.$store.state.members[id].title)
+            : []
           )
           if (overlaps.length === 0) continue
 
@@ -28,9 +44,11 @@ export default {
             $.fullCalendar.moment(e1.end) <= $.fullCalendar.moment(e2.start)
           ) continue
 
-          let event = this.$_.cloneDeep(e1)
-          event.title = event.title + ' (' + this.$_.map(overlaps, (id) => this.$store.state.resources[id].title).join(', ') + ')'
-          events.push(event)
+          for (let e of [e1, e2]) {
+            e = this.$_.cloneDeep(e)
+            e.title = e.title + ' (' + overlaps.join(', ') + ')'
+            events.push(e)
+          }
           break
         }
       }
@@ -46,7 +64,7 @@ export default {
         header: {
           left: 'prev,next today',
           center: 'title',
-          right: 'listDay, listWeek, listMonth, listYear'
+          right: 'checkResources,checkMembers listDay, listWeek, listMonth, listYear'
         },
         buttonText: { prev: '<', next: '>', today: '今天', year: '年', month: '月', week: '周', day: '日' },
         firstDay: '1',
@@ -94,6 +112,26 @@ export default {
           })
 
           return false
+        },
+
+        // Options
+        customButtons: {
+          checkMembers: {
+            text: '仅人员',
+            click: () => {
+              this.checkMembers = true
+              this.checkResources = false
+              this.refresh()
+            }
+          },
+          checkResources: {
+            text: '仅资源',
+            click: () => {
+              this.checkMembers = false
+              this.checkResources = true
+              this.refresh()
+            }
+          }
         },
 
         // License
