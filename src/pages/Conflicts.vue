@@ -64,7 +64,7 @@ export default {
         header: {
           left: 'prev,next today',
           center: 'title',
-          right: 'checkResources,checkMembers listDay, listWeek, listMonth, listYear'
+          right: 'checkResources,checkMembers listDay,listWeek,listMonth,listYear'
         },
         buttonText: { prev: '<', next: '>', today: '今天', year: '年', month: '月', week: '周', day: '日' },
         firstDay: '1',

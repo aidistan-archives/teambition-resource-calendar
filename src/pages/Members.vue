@@ -22,7 +22,7 @@ export default {
         header: {
           left: 'prev,next today',
           center: 'title',
-          right: 'timelineDay, timelineWeek, timelineMonth, timelineYear'
+          right: 'timelineDay,timelineWeek,timelineMonth,timelineYear'
         },
         buttonText: { prev: '<', next: '>', today: '今天', year: '年', month: '月', week: '周', day: '日' },
         firstDay: '1',
