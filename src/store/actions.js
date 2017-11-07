@@ -100,7 +100,7 @@ export function loadEventsAndResources ({ commit, state }) {
           title: tbEvent.title,
           start: tbEvent.startDate,
           end: tbEvent.endDate,
-          memberIds: tbEvent.involveMembers,
+          memberIds: Vue._.intersection(tbEvent.involveMembers, Vue._.keys(members)),
           url: `https://www.teambition.com/project/${state.params.id}/events/event/${tbEvent._id}`
         }
 
@@ -116,7 +116,7 @@ export function loadEventsAndResources ({ commit, state }) {
           event.resourceIds = tbEvent.tagIds
         }
 
-        for (let id of event.memberIds) if (members[id]) members[id].eventCount += 1
+        for (let id of event.memberIds) members[id].eventCount += 1
         for (let id of event.resourceIds) resources[id].eventCount += 1
 
         events.push(event)
@@ -156,7 +156,7 @@ export function loadEventsAndResources ({ commit, state }) {
               title: tbEvent.title,
               start: tbEvent.startDate,
               end: tbEvent.endDate,
-              memberIds: tbEvent.involveMembers,
+              memberIds: Vue._.intersection(tbEvent.involveMembers, Vue._.keys(members)),
               url: `https://www.teambition.com/project/${project._id}/events/event/${tbEvent._id}`
             }
 
@@ -168,7 +168,7 @@ export function loadEventsAndResources ({ commit, state }) {
               event.resourceIds = ['null']
             }
 
-            for (let id of event.memberIds) if (members[id]) members[id].eventCount += 1
+            for (let id of event.memberIds) members[id].eventCount += 1
             for (let id of event.resourceIds) resources[id].eventCount += 1
 
             events.push(event)

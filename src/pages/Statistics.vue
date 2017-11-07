@@ -34,7 +34,7 @@ export default {
       let hours = {}
       for (let event of this.events) {
         let duration = (this.$m(event.end) - this.$m(event.start)) / 3600000
-        for (let id of (event.resourceIds || [event.resourceId])) {
+        for (let id of (event.resourceIds)) {
           hours[id] = (hours[id] || 0) + duration
         }
       }

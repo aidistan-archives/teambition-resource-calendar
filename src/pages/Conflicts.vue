@@ -26,11 +26,8 @@ export default {
 
           let overlaps = this.$_.union(
             this.checkResources
-            ? this.$_.intersection(
-              e1.resourceId ? [e1.resourceId] : e1.resourceIds,
-              e2.resourceId ? [e2.resourceId] : e2.resourceIds
-            )
-            .map((id) => this.$store.state.resources[id].title)
+            ? this.$_.intersection(e1.resourceIds, e2.resourceIds)
+              .map((id) => this.$store.state.resources[id].title)
             : [],
             this.checkMembers
             ? this.$_.intersection(e1.memberIds, e2.memberIds)
