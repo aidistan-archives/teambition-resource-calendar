@@ -38,8 +38,8 @@ export function loadEventsAndResources ({ commit, state }) {
     })
     .then((res) => res.json())
     .then((tbMembers) => {
-      members = Vue._(tbMembers).keyBy('_id').mapValues((tbMember) => (
-        { id: tbMember._id, title: tbMember.name, eventCount: 0 }
+      members = Vue._(tbMembers).keyBy('_userId').mapValues((tbMember) => (
+        { id: tbMember._userId, title: tbMember.name, eventCount: 0 }
       )).value()
     })
     .then(() => Vue.api({
@@ -133,8 +133,8 @@ export function loadEventsAndResources ({ commit, state }) {
     })
     .then((res) => res.json())
     .then((tbMembers) => {
-      members = Vue._(tbMembers).keyBy('_id').mapValues((tbMember) => (
-        { id: tbMember._id, title: tbMember.name, eventCount: 0 }
+      members = Vue._(tbMembers).keyBy('_userId').mapValues((tbMember) => (
+        { id: tbMember._userId, title: tbMember.name, eventCount: 0 }
       )).value()
     })
     .then(() => Vue.api({
