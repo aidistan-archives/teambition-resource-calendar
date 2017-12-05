@@ -27,7 +27,12 @@ export function loadEventsAndResources ({ commit, state }) {
     commit('STATUS', '【参数错误】未指定企业')
   } else {
     return (state.params.type === 'project' ? loadForProject() : loadForOrganization())
-    .then(() => commit('DATA', prepareData()))
+    .then(() => commit('DATA', {
+      events,
+      members: Vue._.pickBy(members, (m) => m.eventCount > 0),
+      resources: Vue._.pickBy(resources, (r) => r.eventCount > 0),
+      resourceLevels
+    }))
     .catch((err) => commit('STATUS', err.message))
   }
 
@@ -190,39 +195,5 @@ export function loadEventsAndResources ({ commit, state }) {
       eventCount: 0,
       level_0: id
     }, resource)
-  }
-
-  function prepareData () {
-    let data = {
-      events,
-      members: Vue._.pickBy(members, (m) => m.eventCount > 0),
-      resources: Vue._.pickBy(resources, (r) => r.eventCount > 0),
-      resourceLevels
-    }
-
-    // if (params.type === 'organization' && params.id === '50c32afae8cf1439d35a87e6') {
-    //   return filterByResources(['大会议室', '小会议室', '中心区域'])
-    // } else if (params.type === 'project' && params.id === '579b610c44092feb5ee5e6ef') {
-    //   return filterByResources(['场地::小黑屋', '设备::投影仪#ff5722'])
-    // } else {
-    return data
-    // }
-
-    // function filterByResources (resourceTitles) {
-    //   let resources = Vue._.pickBy(data.resources, (r) => resourceTitles.indexOf(r._title) > -1)
-    //   let resourceIds = Vue._.map(resources, 'id')
-    //
-    //   let events = Vue._.map(data.events, (e) => {
-    //     if (e.resourceId) {
-    //       return resourceIds.indexOf(e.resourceId) > -1 ? e : null
-    //     } else {
-    //       e.resourceIds = Vue._.filter(e.resourceIds, (id) => resourceIds.indexOf(id) > -1)
-    //       return e.resourceIds.length > 0 ? e : null
-    //     }
-    //   })
-    //   events = Vue._.filter(events, (e) => e !== null)
-    //
-    //   return { events, resources, resourceLevels: resourceLevels }
-    // }
   }
 }
