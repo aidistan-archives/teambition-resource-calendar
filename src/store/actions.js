@@ -43,7 +43,6 @@ export function loadEventsAndResources ({ commit, state }) {
       url: `/v2/projects/${state.params.id}/members`,
       method: 'GET'
     })
-    .then((res) => res.json())
     .then((tbMembers) => {
       members = Vue._(tbMembers).keyBy('_userId').mapValues((tbMember) => (
         { id: tbMember._userId, title: tbMember.name, eventCount: 0 }
@@ -53,7 +52,6 @@ export function loadEventsAndResources ({ commit, state }) {
       url: `/projects/${state.params.id}/tags`,
       method: 'GET'
     }))
-    .then((res) => res.json())
     .then((tags) => {
       for (let tag of tags) {
         let name = tag.name
@@ -95,7 +93,6 @@ export function loadEventsAndResources ({ commit, state }) {
       url: `/projects/${state.params.id}/events?startDate=${Vue.m().subtract(1, 'year').toISOString()}`,
       method: 'GET'
     }))
-    .then((res) => res.json())
     .then((tbEvents) => {
       if (tbEvents.length === 0) {
         return Promise.reject(new Error('未找到任何日程，请在项目中新建'))
@@ -138,7 +135,6 @@ export function loadEventsAndResources ({ commit, state }) {
       url: `/v2/organizations/${state.params.id}/members`,
       method: 'GET'
     })
-    .then((res) => res.json())
     .then((tbMembers) => {
       members = Vue._(tbMembers).keyBy('_userId').mapValues((tbMember) => (
         { id: tbMember._userId, title: tbMember.name, eventCount: 0 }
@@ -148,20 +144,17 @@ export function loadEventsAndResources ({ commit, state }) {
       url: `/organizations/${state.params.id}/teams`,
       method: 'GET'
     }))
-    .then((res) => res.json())
-    .then((teams) => { memberTeams = Vue._.keyBy(teams, '_id') })
+    .then((tbTeams) => { memberTeams = Vue._.keyBy(tbTeams, '_id') })
     .then(() => Vue.api({
       url: `/organizations/${state.params.id}/projects/public`,
       method: 'GET'
     }))
-    .then((res) => res.json())
-    .then((projects) => {
-      return Promise.all(Vue._.map(projects, (project) => {
+    .then((tbProjects) => {
+      return Promise.all(Vue._.map(tbProjects, (project) => {
         return Vue.api({
           url: `/projects/${project._id}/events?startDate=${Vue.m().subtract(1, 'year').toISOString()}`,
           method: 'GET'
         })
-        .then((res) => res.json())
         .then((tbEvents) => {
           for (let tbEvent of tbEvents) {
             let event = {

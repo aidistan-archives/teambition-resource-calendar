@@ -29,7 +29,7 @@ export default {
           Authorization: 'OAuth2 ' + process.env.ACCESS_TOKEN
         })
       }
-      return Vue.http(options)
+      return Vue.http(options).then((res) => res.json())
     }
 
     Object.defineProperties(Vue.prototype, {
