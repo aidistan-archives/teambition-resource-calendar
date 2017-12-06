@@ -12,6 +12,8 @@ export default new Vuex.Store({
     params: qs.parse(window.location.search.substr(1)),
 
     events: [],
+    members: {},
+    memberTeams: {},
     resources: {},
     resourceLevels: []
   },
@@ -25,6 +27,7 @@ export default new Vuex.Store({
     DATA (state, data) {
       state.events = data.events
       state.members = data.members
+      state.memberTeams = data.memberTeams
       state.resources = data.resources
       state.resourceLevels = data.resourceLevels
     }

@@ -16,6 +16,7 @@ export function spinner ({ commit }, ifShow) {
 export function loadEventsAndResources ({ commit, state }) {
   let events = []
   let members = {}
+  let memberTeams = {}
   let resources = {}
   let resourceLevels = []
 
@@ -30,6 +31,7 @@ export function loadEventsAndResources ({ commit, state }) {
     .then(() => commit('DATA', {
       events,
       members: Vue._.pickBy(members, (m) => m.eventCount > 0),
+      memberTeams,
       resources: Vue._.pickBy(resources, (r) => r.eventCount > 0),
       resourceLevels
     }))
@@ -142,6 +144,12 @@ export function loadEventsAndResources ({ commit, state }) {
         { id: tbMember._userId, title: tbMember.name, eventCount: 0 }
       )).value()
     })
+    .then(() => Vue.api({
+      url: `/organizations/${state.params.id}/teams`,
+      method: 'GET'
+    }))
+    .then((res) => res.json())
+    .then((teams) => { memberTeams = Vue._.keyBy(teams, '_id') })
     .then(() => Vue.api({
       url: `/organizations/${state.params.id}/projects/public`,
       method: 'GET'
