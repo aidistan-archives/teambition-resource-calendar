@@ -8,17 +8,17 @@
           button.close(type="button", data-dismiss="modal" aria-hidden="true") &times;
           h4.modal-title 按部门筛选
         .modal-body
-          team-tree(@select="selectTeam")
+          member-teams(@select="selectTeam")
 </template>
 
 <script>
-import TeamTree from '@/components/TeamTree'
+import MemberTeams from '@/components/MemberTeams'
 
 export default {
   name: 'members',
   data () {
     return {
-      involveMembers: null
+      teamMembers: null
     }
   },
   mounted () {
@@ -26,6 +26,11 @@ export default {
     this.$store.watch((state) => state.events, this.refresh)
   },
   methods: {
+    selectTeam (members) {
+      this.teamMembers = members
+      this.refresh()
+      $('#members-modal').modal('hide')
+    },
     refresh () {
       $('#members-calendar').fullCalendar('destroy')
       $('#members-calendar').fullCalendar({
@@ -105,8 +110,10 @@ export default {
 
         // Resources
         resourceColumns: [{ labelText: '', field: 'title' }],
-        resources: this.$_.values(this.$store.state.members)
-        .filter((member) => !this.involveMembers || this.$_.includes(this.involveMembers, member.id)),
+        resources: this.teamMembers
+        ? this.$_.values(this.$store.state.members)
+          .filter((member) => this.$_.includes(this.teamMembers, member.id))
+        : this.$_.values(this.$store.state.members),
 
         customButtons: {
           selectTeam: {
@@ -122,13 +129,8 @@ export default {
       if (this.$store.state.params.day) {
         $('#members-calendar').fullresources('gotoDate', $.fullCalendar.moment(this.$store.state.params.day))
       }
-    },
-    selectTeam (members) {
-      this.involveMembers = members
-      this.refresh()
-      $('#members-modal').modal('hide')
     }
   },
-  components: { TeamTree }
+  components: { MemberTeams }
 }
 </script>

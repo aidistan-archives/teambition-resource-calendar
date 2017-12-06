@@ -1,21 +1,24 @@
 <template lang="pug">
 ul.list-group
-  li.list-group-item(v-for="id in orderedTeams", v-show="itemStates[id].shown", @click="select(id)")
-    span(:style="{ paddingLeft: teamItems[id].indent + 'em' }") {{ teamItems[id].name }}
-    span.caret(v-show="teamItems[id].children.length > 0", :class="{ pulled: itemStates[id].pulled }", @click.stop="togglePulled(id)")
-    span.badge {{ teamItems[id].members.length }}
+  li.list-group-item(v-for="id in orderedTeams", v-show="states[id].shown", @click="select(id)")
+    span(:style="{ marginLeft: states[id].indent + 'em' }")
+    button.btn.btn-default.btn-xs(v-show="teams[id].children.length > 0", @click.stop="togglePulled(id)")
+      span.caret(:class="{ pulled: states[id].pulled }")
+    span(v-show="teams[id].children.length > 0", :style="{ marginLeft: '0.5em' }")
+    span {{ teams[id].name }}
+    span.badge {{ teams[id].members.length }}
 </template>
 
 <script>
 export default {
   data () {
     return {
-      itemStates: {}
+      states: {}
     }
   },
   computed: {
-    // Format data in memberTeams
-    teamItems () {
+    // Format data
+    teams () {
       return this.$_(this.$store.state.memberTeams)
       .map((team) => {
         return {
@@ -28,12 +31,12 @@ export default {
       })
       .keyBy('id').value()
     },
-    // Order all teams by relationships
+    // Order all teams
     orderedTeams () {
       let makeChildrenArray = (id) => {
         let array = []
 
-        this.$_(this.teamItems)
+        this.$_(this.teams)
         .filter((team) => team.parent === id)
         .each((team) => array.push(team.id, makeChildrenArray(team.id)))
 
@@ -41,17 +44,16 @@ export default {
       }
       let orderedTeams = this.$_.flattenDeep(makeChildrenArray(null))
 
-      // Initialize item states
-      let calculateIndent = (id) => this.teamItems[id].parent ? calculateIndent(this.teamItems[id].parent) + 1.5 : 0
-      this.itemStates = this.$_(orderedTeams)
+      // Initialize states
+      let calculateIndent = (id) => this.teams[id].parent ? calculateIndent(this.teams[id].parent) + 1.5 : 0
+      this.states = this.$_(orderedTeams)
       .map((id) => {
-        this.teamItems[id].indent = calculateIndent(id)
-
         return {
           id,
-          pulled: this.teamItems[id].parent === null,
-          shown: this.teamItems[id].parent === null ||
-            this.teamItems[this.teamItems[id].parent].parent === null
+          indent: calculateIndent(id),
+          pulled: this.teams[id].parent === null,
+          shown: this.teams[id].parent === null ||
+            this.teams[this.teams[id].parent].parent === null
         }
       })
       .keyBy('id').value()
@@ -61,15 +63,15 @@ export default {
   },
   methods: {
     select (id) {
-      this.$emit('select', this.teamItems[id].members)
+      this.$emit('select', this.teams[id].members)
     },
     togglePulled (id) {
-      this.itemStates[id].pulled = !this.itemStates[id].pulled
+      this.states[id].pulled = !this.states[id].pulled
       this.populateState(id)
     },
     populateState (parent) {
-      this.$_.each(this.teamItems[parent].children, (id) => {
-        this.itemStates[id].shown = this.itemStates[parent].pulled && this.itemStates[parent].shown
+      this.$_.each(this.teams[parent].children, (id) => {
+        this.states[id].shown = this.states[parent].pulled && this.states[parent].shown
         this.populateState(id)
       })
     }
@@ -86,7 +88,6 @@ li {
   display: inline-block;
   width: 0;
   height: 0;
-  margin-left: 10px;
   vertical-align: middle;
   border-top: 6px dashed;
   border-top: 6px solid \9;
