@@ -35,7 +35,7 @@ export function loadEventsAndResources ({ commit, state }) {
       resources: Vue._.pickBy(resources, (r) => r.eventCount > 0),
       resourceLevels
     }))
-    .catch((err) => commit('STATUS', err.message))
+    .catch((err) => commit('STATUS', err.message || err.body.message))
   }
 
   function loadForProject () {
