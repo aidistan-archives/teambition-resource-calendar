@@ -85,19 +85,18 @@ li {
 }
 
 .caret {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  vertical-align: middle;
-  border-top: 6px dashed;
-  border-top: 6px solid \9;
   border-right: 4px solid transparent;
-  border-left: 4px solid transparent;
+  border-left: 6px dashed black;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  margin: 0 -3px 0 3px;
 }
 
 .caret.pulled {
-  border-top: 0;
-  border-bottom: 6px solid;
-  content: "";
+  border-bottom: 4px solid transparent;
+  border-top: 6px dashed black;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  margin: 2px 1px -2px 1px;
 }
 </style>

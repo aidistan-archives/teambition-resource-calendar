@@ -2,11 +2,14 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import qs from 'querystring'
 import * as actions from './actions'
+import { version } from '../../package.json'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    version,
+
     status: null,
     spinner: false,
     params: qs.parse(window.location.search.substr(1)),

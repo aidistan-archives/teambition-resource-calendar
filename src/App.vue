@@ -3,11 +3,12 @@
   app-header
   router-view
   #app-status(v-show="$store.state.status")
-    .jumbotron
-      h2 {{ $store.state.status }}
-      p 请检查插件配置，或联系开发者获取帮助
+    h2 {{ $store.state.status }}
+    p 请检查插件配置，或联系开发者获取帮助
+    .app-version Version {{ $store.state.version }}
   #app-spinner(v-show="$store.state.spinner")
     img(src="./assets/loading.gif")
+    .app-version Version {{ $store.state.version }}
 </template>
 
 <script>
@@ -41,6 +42,7 @@ export default {
   left: 0;
 
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 
@@ -49,4 +51,11 @@ export default {
 }
 #app-status { z-index: 5; }
 #app-spinner { z-index: 10; }
+
+.app-version {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  color: #ccc;
+}
 </style>
