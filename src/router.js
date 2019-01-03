@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Help from '@/pages/Help'
 import Conflicts from '@/pages/Conflicts'
 import Members from '@/pages/Members'
 import Resources from '@/pages/Resources'
@@ -11,6 +12,7 @@ export default new Router({
   mode: 'history',
   routes: [
     { path: '*', redirect: '/resources' },
+    { path: '/help', name: 'help', component: Help },
     { path: '/conflicts', name: 'conflicts', component: Conflicts },
     { path: '/members', name: 'members', component: Members },
     { path: '/resources', name: 'resources', component: Resources },

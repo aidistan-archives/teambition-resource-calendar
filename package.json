@@ -14,6 +14,7 @@
     "fullcalendar-scheduler": "^1.9.0",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
+    "showdown": "^1.9.0",
     "tb-apps-sdk": "0.0.4",
     "tb-styles": "^0.1.2",
     "vue": "^2.4.2",
