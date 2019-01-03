@@ -10,7 +10,9 @@ export default new Vuex.Store({
   state: {
     version,
     configs: {
-      _task: {}
+      _task: {},
+      minTime: '08:00:00',
+      maxTime: '18:00:00'
     },
 
     status: null,

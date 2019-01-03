@@ -53,7 +53,11 @@ export function load ({ commit, state }) {
           return commit('CONFIGS', {
             _task: task,
             startDate: task.startDate === null ? '10/01/1949'
-              : $.fullCalendar.moment(task.startDate).format('YYYY-MM-DD')
+              : $.fullCalendar.moment(task.startDate).format('YYYY-MM-DD'),
+            minTime: task.startDate === null ? '08:00:00'
+              : $.fullCalendar.moment(task.startDate).format('HH:mm:ss'),
+            maxTime: task.dueDate === null ? '18:00:00'
+              : $.fullCalendar.moment(task.dueDate).format('HH:mm:ss')
           })
         }
       }

@@ -48,8 +48,8 @@ export default {
           }
         },
         defaultView: 'timelineDay',
-        minTime: '08:00:00',
-        maxTime: '18:00:00',
+        minTime: this.$store.state.configs.minTime,
+        maxTime: this.$store.state.configs.maxTime,
         timeFormat: 'H:mm',
         eventOverlap: false,
 

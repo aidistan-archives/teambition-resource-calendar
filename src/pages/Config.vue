@@ -8,8 +8,17 @@
     .form-group
       label.col-sm-2.control-label 日期原点
       .col-sm-10
-        input.form-control(type="date" v-model="$store.state.configs.startDate" disabled)
+        input.form-control(v-model="$store.state.configs.startDate" disabled)
         span.help-block 忽略该日期之前的所有日程
+    .form-group
+      label.col-sm-2.control-label 上班时间
+      .col-sm-10
+        input.form-control(v-model="$store.state.configs.minTime" disabled)
+    .form-group
+      label.col-sm-2.control-label 下班时间
+      .col-sm-10
+        input.form-control(v-model="$store.state.configs.maxTime" disabled)
+        span.help-block 隐藏上班前和下班后的日程
 </template>
 
 <script>
