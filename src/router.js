@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Help from '@/pages/Help'
 import Conflicts from '@/pages/Conflicts'
 import Members from '@/pages/Members'
 import Resources from '@/pages/Resources'
 import Statistics from '@/pages/Statistics'
+import Config from '@/pages/Config'
+import Help from '@/pages/Help'
 
 Vue.use(Router)
 
@@ -12,10 +13,11 @@ export default new Router({
   mode: 'history',
   routes: [
     { path: '*', redirect: '/resources' },
-    { path: '/help', name: 'help', component: Help },
     { path: '/conflicts', name: 'conflicts', component: Conflicts },
     { path: '/members', name: 'members', component: Members },
     { path: '/resources', name: 'resources', component: Resources },
-    { path: '/statistics', name: 'statistics', component: Statistics }
+    { path: '/statistics', name: 'statistics', component: Statistics },
+    { path: '/config', name: 'config', component: Config },
+    { path: '/help', name: 'help', component: Help }
   ]
 })

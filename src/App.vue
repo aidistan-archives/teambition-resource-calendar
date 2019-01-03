@@ -17,9 +17,9 @@ import AppHeader from '@/components/AppHeader'
 export default {
   name: 'app',
   created () {
-    this.$store.dispatch('spinner', true)
-    .then(() => this.$store.dispatch('loadEventsAndResources'))
-    .then(() => this.$store.dispatch('spinner', false))
+    this.$store.dispatch('spin', true)
+    .then(() => this.$store.dispatch('load'))
+    .then(() => this.$store.dispatch('spin', false))
   },
   components: {
     AppHeader

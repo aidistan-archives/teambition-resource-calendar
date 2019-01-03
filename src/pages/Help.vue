@@ -13,15 +13,13 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('spinner', true)
+    this.$store.dispatch('spin', true)
     .then(() => this.$api({
-      url: `/tasks/5c2e3162246d450018b17e7b`,
+      url: '/tasks/5c2e3162246d450018b17e7b',
       method: 'GET'
     }))
-    .then((task) => {
-      this.content = new Converter().makeHtml(task.note)
-    })
-    .then(() => this.$store.dispatch('spinner', false))
+    .then((task) => this.$set(this, 'content', new Converter().makeHtml(task.note)))
+    .then(() => this.$store.dispatch('spin', false))
   }
 }
 </script>

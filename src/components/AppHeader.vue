@@ -4,9 +4,11 @@
     ul.nav.navbar-nav
       li(v-for="(displayName, name) in menuItems", :class="{ active: $route.name === name }")
         router-link(:to="{ name: name, query: $route.query }") {{ displayName }}
-      li.pull-right(:class="{ active: $route.name === 'help' }")
+      li(:class="{ active: $route.name === 'config' }")
+        router-link(:to="{ name: 'config', query: $route.query }")
+          span.icon.icon-cog
+      li(:class="{ active: $route.name === 'help' }")
         router-link(:to="{ name: 'help', query: $route.query }")
-          span(style="margin-right: 0.5rem;") 帮助
           span.icon.icon-circle-question
 </template>
 

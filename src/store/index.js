@@ -9,6 +9,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     version,
+    configs: {
+      _task: {}
+    },
 
     status: null,
     spinner: false,
@@ -33,6 +36,9 @@ export default new Vuex.Store({
       state.memberTeams = data.memberTeams
       state.resources = data.resources
       state.resourceLevels = data.resourceLevels
+    },
+    CONFIGS (state, data) {
+      state.configs = data
     }
   },
   actions

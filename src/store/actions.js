@@ -9,11 +9,11 @@ const name2rgb = {
   gray: '#a6a6a6'
 }
 
-export function spinner ({ commit }, ifShow) {
+export function spin ({ commit }, ifShow) {
   commit('SPINNER', { ifShow })
 }
 
-export function loadEventsAndResources ({ commit, state }) {
+export function load ({ commit, state }) {
   let events = []
   let members = {}
   let memberTeams = {}
@@ -27,7 +27,8 @@ export function loadEventsAndResources ({ commit, state }) {
   } else if (state.params.type === 'organization' && !state.params.id) {
     commit('STATUS', '【参数错误】未指定企业')
   } else {
-    return (state.params.type === 'project' ? loadForProject() : loadForOrganization())
+    return loadConfigurations()
+    .then(() => state.params.type === 'project' ? loadForProject() : loadForOrganization())
     .then(() => commit('DATA', {
       events,
       members: Vue._.pickBy(members, (m) => m.eventCount > 0),
@@ -36,6 +37,25 @@ export function loadEventsAndResources ({ commit, state }) {
       resourceLevels
     }))
     .catch((err) => commit('STATUS', err.message || err.body.message))
+  }
+
+  function loadConfigurations () {
+    return Vue.api({
+      url: '/v2/tasklists/5c2e235bc755cc0018d0e2e3/tasks',
+      method: 'GET'
+    })
+    .then((tasks) => {
+      for (let task of tasks) {
+        if (
+          task.content === `${state.params.type}-${state.params.id}` &&
+          task._stageId === '5c2e235bc755cc0018d0e2e7'
+        ) {
+          return commit('CONFIGS', {
+            _task: task
+          })
+        }
+      }
+    })
   }
 
   function loadForProject () {
