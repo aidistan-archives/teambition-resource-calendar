@@ -51,7 +51,9 @@ export function load ({ commit, state }) {
           task._stageId === '5c2e235bc755cc0018d0e2e7'
         ) {
           return commit('CONFIGS', {
-            _task: task
+            _task: task,
+            startDate: task.startDate === null ? '10/01/1949'
+              : $.fullCalendar.moment(task.startDate).format('YYYY-MM-DD')
           })
         }
       }
@@ -164,6 +166,11 @@ export function load ({ commit, state }) {
 
   function processEvents (tbEvents) {
     for (let tbEvent of tbEvents) {
+      if (state.configs.startDate) {
+        if ($.fullCalendar.moment(tbEvent.startDate) <
+          $.fullCalendar.moment(state.configs.startDate)) continue
+      }
+
       let event = {
         id: tbEvent._id,
         title: tbEvent.title,
