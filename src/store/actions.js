@@ -47,17 +47,20 @@ export function load ({ commit, state }) {
     .then((tasks) => {
       for (let task of tasks) {
         if (
-          task.content === `${state.params.type}-${state.params.id}` &&
-          task._stageId === '5c2e235bc755cc0018d0e2e7'
+          task.content === state.params.id && (
+            (state.params.type === 'project' &&
+              task._stageId === '5c2e235bc755cc0018d0e2e7') ||
+            (state.params.type === 'organization' &&
+              task._stageId === '5c2e4660da98f2001883edc3')
+          )
         ) {
           return commit('CONFIGS', {
             _task: task,
-            startDate: task.startDate === null ? '10/01/1949'
-              : $.fullCalendar.moment(task.startDate).format('YYYY-MM-DD'),
+            startDate: task.startDate || Vue.m().subtract(1, 'year').toISOString(),
             minTime: task.startDate === null ? '08:00:00'
-              : $.fullCalendar.moment(task.startDate).format('HH:mm:ss'),
+              : Vue.m(task.startDate).format('HH:mm:ss'),
             maxTime: task.dueDate === null ? '18:00:00'
-              : $.fullCalendar.moment(task.dueDate).format('HH:mm:ss')
+              : Vue.m(task.dueDate).format('HH:mm:ss')
           })
         }
       }
@@ -76,7 +79,7 @@ export function load ({ commit, state }) {
     }))
     .then(processTags)
     .then(() => Vue.api({
-      url: `/projects/${state.params.id}/events?startDate=${Vue.m().subtract(1, 'year').toISOString()}`,
+      url: `/projects/${state.params.id}/events?startDate=${state.configs.startDate}`,
       method: 'GET'
     }))
     .then((tbEvents) => {
@@ -114,7 +117,7 @@ export function load ({ commit, state }) {
         .flatten().uniqBy('_id').filter('_organizationId').value())
       .then(processTags)
       .then(() => Promise.all(Vue._.map(tbProjects, (project) => Vue.api({
-        url: `/projects/${project._id}/events?startDate=${Vue.m().subtract(1, 'year').toISOString()}`,
+        url: `/projects/${project._id}/events?startDate=${state.configs.startDate}`,
         method: 'GET'
       }))))
       .then((allEvents) => Vue._(allEvents)
@@ -170,11 +173,6 @@ export function load ({ commit, state }) {
 
   function processEvents (tbEvents) {
     for (let tbEvent of tbEvents) {
-      if (state.configs.startDate) {
-        if ($.fullCalendar.moment(tbEvent.startDate) <
-          $.fullCalendar.moment(state.configs.startDate)) continue
-      }
-
       let event = {
         id: tbEvent._id,
         title: tbEvent.title,
