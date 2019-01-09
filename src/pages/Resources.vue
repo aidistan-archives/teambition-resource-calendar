@@ -91,7 +91,7 @@ export default {
       })
 
       if (this.$store.state.params.day) {
-        $('#resources').fullresources('gotoDate', $.fullCalendar.moment(this.$store.state.params.day))
+        $('#resources').fullCalendar('gotoDate', this.$m(this.$store.state.params.day))
       }
     }
   }

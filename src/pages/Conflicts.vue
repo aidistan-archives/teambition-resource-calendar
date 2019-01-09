@@ -37,8 +37,8 @@ export default {
           if (overlaps.length === 0) continue
 
           if (
-            $.fullCalendar.moment(e1.start) >= $.fullCalendar.moment(e2.end) ||
-            $.fullCalendar.moment(e1.end) <= $.fullCalendar.moment(e2.start)
+            this.$m(e1.start) >= this.$m(e2.end) ||
+            this.$m(e1.end) <= this.$m(e2.start)
           ) continue
 
           for (let e of [e1, e2]) {
@@ -136,7 +136,7 @@ export default {
       })
 
       if (this.$store.state.params.day) {
-        $('#conflicts').fullCalendar('gotoDate', $.fullCalendar.moment(this.$store.state.params.day))
+        $('#conflicts').fullCalendar('gotoDate', this.$m(this.$store.state.params.day))
       }
     }
   }

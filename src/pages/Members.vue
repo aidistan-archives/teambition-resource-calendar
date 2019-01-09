@@ -127,7 +127,7 @@ export default {
       })
 
       if (this.$store.state.params.day) {
-        $('#members-calendar').fullresources('gotoDate', $.fullCalendar.moment(this.$store.state.params.day))
+        $('#members-calendar').fullCalendar('gotoDate', this.$m(this.$store.state.params.day))
       }
     }
   },
