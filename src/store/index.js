@@ -9,11 +9,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     version,
-    configs: {
-      _task: {},
-      minTime: '08:00:00',
-      maxTime: '18:00:00'
-    },
+    configs: { _task: {} },
 
     status: null,
     spinner: false,

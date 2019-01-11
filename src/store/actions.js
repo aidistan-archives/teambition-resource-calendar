@@ -45,25 +45,38 @@ export function load ({ commit, state }) {
       method: 'GET'
     })
     .then((tasks) => {
+      let data = {
+        _task: {},
+        startDate: Vue.m().subtract(1, 'year').toISOString(),
+        minTime: '08:00:00',
+        maxTime: '18:00:00'
+      }
+
       for (let task of tasks) {
         if (
-          task.content === state.params.id && (
+          task.content === state.params.id && task.isDone && (
             (state.params.type === 'project' &&
               task._stageId === '5c2e235bc755cc0018d0e2e7') ||
             (state.params.type === 'organization' &&
               task._stageId === '5c2e4660da98f2001883edc3')
           )
         ) {
-          return commit('CONFIGS', {
-            _task: task,
-            startDate: task.startDate || Vue.m().subtract(1, 'year').toISOString(),
-            minTime: task.startDate === null ? '08:00:00'
-              : Vue.m(task.startDate).format('HH:mm:ss'),
-            maxTime: task.dueDate === null ? '18:00:00'
-              : Vue.m(task.dueDate).format('HH:mm:ss')
-          })
+          data._task = task
+
+          if (task.startDate) {
+            data.startDate = task.startDate
+            data.minTime = Vue.m(task.startDate).format('HH:mm:ss')
+          }
+
+          if (task.dueDate) {
+            data.maxTime = Vue.m(task.dueDate).format('HH:mm:ss')
+          }
+
+          break
         }
       }
+
+      return commit('CONFIGS', data)
     })
   }
 
