@@ -19,6 +19,7 @@ export default {
     Vue._ = _
     Vue.m = $.fullCalendar.moment
     Vue.tb = tb
+
     Vue.api = (options) => {
       options.url = '/api' + options.url
       if (process.env.NODE_ENV === 'production') {
@@ -30,6 +31,24 @@ export default {
         })
       }
       return Vue.http(options).then((res) => res.json())
+    }
+
+    Vue.apiWithPagination = (options) => {
+      return new Promise((resolve) => {
+        let allObjects = []
+        options.params.page = 0
+
+        let fetchObjects = () => {
+          options.params.page += 1
+
+          Vue.api(_.clone(options)).then((objects) => {
+            allObjects = allObjects.concat(objects)
+            objects.length === options.params.count ? fetchObjects() : resolve(allObjects)
+          })
+        }
+
+        fetchObjects()
+      })
     }
 
     Object.defineProperties(Vue.prototype, {

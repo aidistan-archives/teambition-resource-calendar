@@ -117,9 +117,10 @@ export function load ({ commit, state }) {
       method: 'GET'
     }))
     .then((tbTeams) => { memberTeams = Vue._.keyBy(tbTeams, '_id') })
-    .then(() => Vue.api({
+    .then(() => Vue.apiWithPagination({
       url: `/organizations/${state.params.id}/projects/public`,
-      method: 'GET'
+      method: 'GET',
+      params: { count: 100 }
     }))
     .then((tbProjects) => {
       return Promise.all(Vue._.map(tbProjects, (project) => Vue.api({
